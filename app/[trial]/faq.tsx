@@ -43,43 +43,50 @@ export default function Faq() {
   }
 
   return (
-    <div className="divide-y divide-gray-200 border-y border-gray-200">
-      {items.map((item, i) => (
-        <div key={i}>
-          <button
-            onClick={() => toggle(i)}
-            className="w-full flex items-center justify-between py-5 text-left cursor-pointer"
-          >
-            <span className="text-base font-medium text-gray-900 pr-8">
-              {item.question}
-            </span>
-            <svg
-              className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-200 ${
-                openIndex === i ? "rotate-180" : ""
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+    <div className="border-t border-[var(--rule)]">
+      {items.map((item, i) => {
+        const open = openIndex === i;
+        return (
+          <div key={i} className="border-b border-[var(--rule)]">
+            <button
+              onClick={() => toggle(i)}
+              className="w-full flex items-center justify-between py-6 text-left cursor-pointer group/faq"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          <div
-            className={`grid transition-all duration-200 ${
-              openIndex === i ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"
-            }`}
-          >
-            <div className="overflow-hidden">
-              <p className="text-gray-600 leading-relaxed">{item.answer}</p>
+              <span className={`text-[17px] font-semibold pr-8 leading-[1.4] tracking-[-0.005em] transition-colors duration-200 ${
+                open ? "text-[var(--blue)]" : "text-[var(--ink)] group-hover/faq:text-[var(--blue)]"
+              }`}>
+                {item.question}
+              </span>
+              <svg
+                className={`w-5 h-5 shrink-0 transition-[transform,color] duration-200 ${
+                  open ? "rotate-180 text-[var(--blue)]" : "text-[var(--ink-3)] group-hover/faq:text-[var(--ink)]"
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            <div
+              className={`grid transition-all duration-300 ease-out ${
+                open ? "grid-rows-[1fr] pb-6" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <p className="text-[15.5px] text-[var(--ink-2)] leading-[1.6] max-w-[660px] m-0">
+                  {item.answer}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
