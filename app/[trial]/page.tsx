@@ -73,17 +73,6 @@ export default async function TrialPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Center: Image */}
-            <div className="hero-image-col">
-              <div className="hero-img-wrap" aria-label="Patient lifestyle photo">
-                <span className="ph-tag">Patient lifestyle photo</span>
-                <div className="stat-pill">
-                  <div className="v">{config.compensation}</div>
-                  <div className="l">Compensation</div>
-                </div>
-              </div>
-            </div>
-
             {/* Right: Form */}
             <div className="hero-form-col">
               <span id="form" style={{ position: "absolute", top: "-80px" }}></span>
