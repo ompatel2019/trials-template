@@ -99,28 +99,6 @@ export default async function TrialPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── Trust Strip ── */}
-      <div className="trust-strip">
-        <div className="inner">
-          <span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1 L12 3 V7 C12 9.5 10 11.5 7 12.5 C4 11.5 2 9.5 2 7 V3 L7 1 Z" stroke="currentColor" strokeWidth="1.4"/><path d="M5 7 L6.5 8.5 L9 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            {config.trustItems[0]?.label}
-          </span>
-          <span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.4"/><path d="M4 7 L6 9 L10 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            {config.trustItems[1]?.label}
-          </span>
-          <span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 11 V5 L7 2 L12 5 V11" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="M5 11 V8 H9 V11" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg>
-            {config.trustItems[2]?.label}
-          </span>
-          <span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.4"/><path d="M7 4 V7 L9 8.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
-            {config.trustItems[3]?.label}
-          </span>
-        </div>
-      </div>
-
       {/* ── Stats ── */}
       <section className="stats">
         <div className="stats-grid">

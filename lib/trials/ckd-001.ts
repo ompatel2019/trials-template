@@ -22,7 +22,7 @@ export const ckd001: TrialConfig = {
   ],
 
   stats: [
-    { label: "Age range", value: "22", unit: "–75", sub: "Adults of any sex" },
+    { label: "Age range", value: "22–75", sub: "Adults of any sex" },
     { label: "Duration", value: "26", unit: "wks", sub: "From screening to follow-up" },
     { label: "Visits", value: "6", unit: "+2 remote", sub: "On-site clinical visits" },
     { label: "Compensation", value: "$2,800", sub: "Plus travel reimbursement" },
