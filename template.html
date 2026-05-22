@@ -1,0 +1,1317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280" />
+<title>Northbrook Research — A study for adults with chronic kidney disease</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@1,8..60,400;1,8..60,500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-tint: #f4f7fc;
+    --bg-tint-2: #eef3fb;
+    --ink: #0d1730;
+    --ink-2: #3d4a66;
+    --ink-3: #6b7793;
+    --rule: #e3e8f1;
+    --rule-soft: #eef1f7;
+    --blue: #1d4ed8;
+    --blue-2: #2563eb;
+    --blue-deep: #0b2e6f;
+    --blue-pale: #dde7fa;
+    --orange: #ea580c;
+    --orange-2: #c2410c;
+    --orange-pale: #fff1e8;
+    --green: #15803d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg-tint); }
+  body {
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 56px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .eyebrow.muted { color: var(--ink-3); }
+  .eyebrow.live::before {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 8px;
+    vertical-align: 1px;
+    box-shadow: 0 0 0 0 rgba(21, 128, 61, .55);
+    animation: live 2s ease-in-out infinite;
+  }
+  @keyframes live {
+    0%,100% { box-shadow: 0 0 0 0 rgba(21,128,61,.55); }
+    50%     { box-shadow: 0 0 0 7px rgba(21,128,61,0); }
+  }
+
+  /* ---------- Nav ---------- */
+  nav.top {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 50;
+    background: transparent;
+  }
+  nav.top .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 56px 0;
+    max-width: 1240px; margin: 0 auto;
+  }
+  .logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink);
+  }
+  .logo .mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--blue-deep);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 15px;
+    letter-spacing: -0.02em;
+  }
+  .logo .name {
+    font-weight: 700; font-size: 16px;
+    letter-spacing: -0.005em;
+  }
+  .logo .name span {
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-left: 6px;
+  }
+  .nav-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .nav-meta .d {
+    display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--green);
+    margin-right: 8px; vertical-align: 1px;
+    box-shadow: 0 0 0 0 rgba(21,128,61,.55);
+    animation: live 2s ease-in-out infinite;
+  }
+  .btn-orange {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px;
+    background: var(--orange);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, transform .15s, box-shadow .15s;
+    box-shadow: 0 1px 0 rgba(0,0,0,.05);
+    white-space: nowrap;
+  }
+  .btn-orange:hover { background: var(--orange-2); }
+  .btn-orange .arrow { transition: transform .2s; }
+  .btn-orange:hover .arrow { transform: translateX(3px); }
+  .btn-orange.lg {
+    padding: 16px 26px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent;
+    color: var(--ink);
+    border: 0;
+    padding: 11px 4px;
+    font: inherit; font-weight: 600; font-size: 14.5px;
+    cursor: pointer; text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn-ghost:hover { color: var(--blue); }
+  .btn-ghost .arrow { transition: transform .2s; }
+  .btn-ghost:hover .arrow { transform: translateX(3px); }
+
+  /* ---------- Hero ---------- */
+  section.hero {
+    padding: 110px 0 90px;
+    background: var(--bg-tint);
+    position: relative;
+    overflow: hidden;
+  }
+  section.hero::before {
+    /* very faint decorative grid lines */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(13, 46, 111, .035) 1px, transparent 1px);
+    background-size: 80px 100%;
+    background-position: center;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1fr 0.7fr 0.95fr;
+    gap: 32px;
+    align-items: stretch;
+  }
+  .hero-text { padding-top: 4px; min-width: 0; }
+  .hero-image-col {
+    align-self: stretch;
+    display: flex;
+    min-width: 0;
+  }
+  .hero-form-col {
+    align-self: stretch;
+    display: flex;
+    margin-left: -28px;
+    min-width: 0;
+  }
+  .hero-eyebrow {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--blue);
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+
+  h1.headline {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 800;
+    font-size: 40px;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0 0 28px;
+  }
+  .receive-h {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 14px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+  ul.benefits {
+    list-style: none; padding: 0; margin: 0 0 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  ul.benefits li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 15.5px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  ul.benefits li svg { flex-shrink: 0; margin-top: 3px; }
+
+  .hero-cta-row {
+    display: flex; align-items: center; gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  /* hero image */
+  .hero-img-wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 80% at 30% 20%, #e8f0fb 0%, #d8e4f6 55%, #b9cbe8 100%);
+    box-shadow:
+      0 30px 60px -28px rgba(13, 23, 48, .22),
+      0 2px 0 rgba(13, 23, 48, .04);
+  }
+  .hero-img-wrap::before {
+    /* subtle textured fill (no literal drawing) */
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(50% 35% at 50% 75%, rgba(13, 46, 111, .12) 0%, rgba(13, 46, 111, 0) 65%),
+      repeating-linear-gradient(135deg, transparent 0 20px, rgba(13, 46, 111, .04) 20px 21px);
+  }
+  .hero-img-wrap .ph-tag {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: rgba(255,255,255,.92);
+    color: var(--ink-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border-radius: 3px;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+  }
+  .hero-img-wrap .stat-pill {
+    position: absolute;
+    left: 16px; bottom: 16px;
+    background: var(--orange);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 14px 28px -8px rgba(234, 88, 12, .45);
+    z-index: 2;
+  }
+  .hero-img-wrap .stat-pill .v { font-size: 20px; line-height: 1; }
+  .hero-img-wrap .stat-pill .l { font-size: 10.5px; opacity: .92; margin-top: 3px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* Hero-embedded form shell */
+  .hero-form-shell {
+    width: 100%;
+    background: var(--blue-2);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 30px 60px -28px rgba(13, 46, 111, .35);
+    position: relative;
+  }
+  .hero-form-shell::after {
+    content: "NB-2614";
+    position: absolute;
+    top: -10px; right: 18px;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .hero-form-shell .form-card {
+    box-shadow: none;
+    border: 0;
+    padding: 22px 22px 18px;
+    border-radius: 8px;
+  }
+  .hero-form-shell .form-head h3 {
+    font-size: 18px;
+  }
+  .hero-form-shell .progress-line {
+    margin-bottom: 20px;
+  }
+  .hero-form-shell .q-label {
+    font-size: 14.5px;
+  }
+  .hero-form-shell .inp { padding: 12px 12px; font-size: 14px; }
+  .hero-form-shell .radio-opt { padding: 11px 12px; font-size: 14px; }
+  .hero-form-shell .btn-cont { padding: 13px 18px; font-size: 14px; }
+
+  /* Trust strip */
+  .trust-strip {
+    background: var(--bg-tint);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 22px 0;
+  }
+  .trust-strip .inner {
+    max-width: 1240px; margin: 0 auto; padding: 0 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
+  }
+  .trust-strip .inner span { display: flex; align-items: center; gap: 8px; }
+  .trust-strip .inner svg { color: var(--blue); }
+
+  /* ---------- Eligibility section (removed; form is in hero) ---------- */
+  section.eligibility { display: none; }
+  section.eligibility-old {
+    background: var(--bg-tint);
+    padding: 90px 0 100px;
+    position: relative;
+  }
+  .elig-grid {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 80px;
+    align-items: start;
+  }
+  .elig-info h2 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 16px 0 20px;
+    max-width: 460px;
+    text-wrap: balance;
+  }
+  .elig-info p.elig-lede {
+    font-size: 17px;
+    color: var(--ink-2);
+    max-width: 460px;
+    margin: 0 0 36px;
+  }
+  .elig-steps { list-style: none; padding: 0; margin: 0; }
+  .elig-steps li {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  .elig-steps li:last-child { border-bottom: 1px solid var(--rule); }
+  .elig-steps .num {
+    width: 28px; height: 28px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    color: var(--blue);
+  }
+  .elig-steps .body strong {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  .elig-steps .body span {
+    font-size: 14.5px;
+    color: var(--ink-3);
+  }
+
+  /* form card */
+  .form-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid var(--rule);
+    padding: 32px;
+    box-shadow:
+      0 30px 60px -28px rgba(13, 46, 111, .18),
+      0 2px 0 rgba(13, 46, 111, .03);
+  }
+  .form-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .form-head h3 {
+    font-size: 22px; font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .step-frac {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+  }
+  .progress-line {
+    height: 4px;
+    background: var(--rule);
+    border-radius: 99px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+  .progress-line::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--blue);
+    width: var(--p, 14%);
+    transition: width .35s cubic-bezier(.4,.2,.2,1);
+    border-radius: 99px;
+  }
+  .q-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 14px;
+    line-height: 1.35;
+  }
+  .input-row { display: flex; gap: 10px; }
+  .input-row.col { flex-direction: column; }
+  .inp {
+    width: 100%;
+    padding: 14px 14px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    color: var(--ink);
+    font: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .inp::placeholder { color: var(--ink-3); }
+  .inp:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-pale); }
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all .12s;
+    background: #fff;
+  }
+  .radio-opt:hover { border-color: var(--blue); background: #fafbfd; }
+  .radio-opt.sel {
+    border-color: var(--blue);
+    background: var(--blue-pale);
+  }
+  .radio-opt .dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--rule);
+    flex-shrink: 0;
+    position: relative;
+    background: #fff;
+  }
+  .radio-opt.sel .dot { border-color: var(--blue); }
+  .radio-opt.sel .dot::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: var(--blue);
+    border-radius: 50%;
+  }
+  .form-actions {
+    margin-top: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .btn-cont {
+    flex: 1;
+    padding: 15px 22px;
+    background: var(--orange);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14.5px; font-weight: 600;
+    cursor: pointer;
+    opacity: .4;
+    pointer-events: none;
+    transition: opacity .15s, background .15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-cont.ready { opacity: 1; pointer-events: auto; }
+  .btn-cont.ready:hover { background: var(--orange-2); }
+  .btn-back {
+    background: transparent; border: 0;
+    color: var(--ink-3); font: inherit; font-size: 13.5px; font-weight: 500;
+    cursor: pointer; padding: 8px 12px;
+    border-radius: 6px;
+  }
+  .btn-back:hover { color: var(--ink); background: var(--bg-tint); }
+  .form-foot {
+    margin-top: 18px;
+    border-top: 1px solid var(--rule-soft);
+    padding-top: 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .form-foot svg { flex-shrink: 0; }
+  .success-state { padding: 18px 0 8px; text-align: center; }
+  .success-state .check {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--blue-pale);
+    color: var(--blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .success-state h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .success-state p { color: var(--ink-2); margin: 0; font-size: 15px; }
+
+  /* ---------- Stats strip ---------- */
+  section.stats { background: #fff; border-bottom: 1px solid var(--rule); }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--rule);
+  }
+  .stat {
+    padding: 36px 32px;
+    border-right: 1px solid var(--rule);
+  }
+  .stat:last-child { border-right: 0; }
+  .stat .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+  .stat .v {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .stat .v small { font-size: 16px; color: var(--ink-2); margin-left: 4px; font-weight: 600; }
+  .stat .sub {
+    font-size: 13.5px; color: var(--ink-3);
+    margin-top: 10px;
+  }
+
+  /* ---------- About the study ---------- */
+  section.about-study {
+    padding: 100px 0;
+    background: #fff;
+  }
+  .about-study-grid {
+    display: grid;
+    grid-template-columns: 0.4fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .side-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    padding-top: 8px;
+  }
+  .study-body { max-width: 760px; }
+  .study-body h2 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    margin: 0 0 28px;
+    text-wrap: balance;
+  }
+  .study-body p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0 0 18px;
+  }
+  .criteria {
+    margin-top: 44px;
+    border-top: 1px solid var(--rule);
+  }
+  .criteria-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .criteria-row:last-child { border-bottom: 0; }
+  .criteria-row .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .criteria-row .v {
+    font-size: 16.5px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  /* ---------- CTA dark band ---------- */
+  section.cta {
+    background: var(--blue-deep);
+    color: #fff;
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  section.cta::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 80% at 90% 0%, rgba(37, 99, 235, .35) 0%, transparent 60%),
+      radial-gradient(60% 80% at 0% 100%, rgba(37, 99, 235, .2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cta-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .cta h2 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 16px 0 18px;
+    text-wrap: balance;
+  }
+  .cta p {
+    margin: 0;
+    color: rgba(255,255,255,.78);
+    font-size: 17px;
+    max-width: 560px;
+  }
+  .cta-right {
+    display: flex; flex-direction: column; gap: 14px;
+    align-items: flex-start;
+  }
+  .cta-right .stat-row {
+    display: flex; align-items: baseline; gap: 10px;
+    color: rgba(255,255,255,.7);
+    font-size: 14.5px;
+  }
+  .cta-right .stat-row strong {
+    color: #fff;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* ---------- Why ---------- */
+  section.why {
+    background: var(--bg-tint);
+    padding: 100px 0;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: 0.4fr 1fr;
+    gap: 80px;
+  }
+  .why h2 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.06;
+    margin: 16px 0 48px;
+    letter-spacing: -0.025em;
+    max-width: 720px;
+    text-wrap: balance;
+  }
+  .why-list { list-style: none; padding: 0; margin: 0; }
+  .why-list li {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 32px;
+    padding: 28px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .why-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .why-list .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--blue);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .why-list .body h3 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .why-list .body p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15.5px;
+    line-height: 1.55;
+    max-width: 660px;
+  }
+
+  /* ---------- About us ---------- */
+  section.about-us {
+    background: #fff;
+    padding: 100px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .about-us-grid {
+    display: grid;
+    grid-template-columns: 0.4fr 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .about-us h2 {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 16px 0 0;
+  }
+  .about-us h2 span {
+    color: var(--blue);
+  }
+  .about-us .col p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin: 0 0 18px;
+  }
+  .about-us .col p:first-child { color: var(--ink); font-size: 17px; }
+  .about-meta {
+    margin-top: 32px;
+    border-top: 1px solid var(--rule);
+    padding-top: 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  .about-meta .cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+  .about-meta .cell strong {
+    display: block;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 18px;
+    margin-top: 4px;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    background: #fff;
+    padding: 60px 0 32px;
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 40px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .foot-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+  .foot-col a {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 14.5px;
+    margin-bottom: 10px;
+  }
+  .foot-col a:hover { color: var(--blue); }
+  .foot-col .desc {
+    margin: 14px 0 0;
+    font-size: 14px;
+    color: var(--ink-2);
+    max-width: 280px;
+    line-height: 1.55;
+  }
+  .compliance {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-2);
+    text-transform: uppercase;
+  }
+  .pill .d {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  }
+  .foot-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .foot-bottom .links a { color: var(--ink-3); text-decoration: none; margin-left: 18px; }
+  .foot-bottom .links a:hover { color: var(--ink); }
+
+  .legal {
+    max-width: 940px;
+    margin: 36px auto 0;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.01em;
+  }
+
+  .check-bullet svg { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- =============== NAV =============== -->
+<nav class="top">
+  <div class="row">
+    <a href="#" class="logo">
+      <span class="mark">N</span>
+      <span class="name">Northbrook <span>Research</span></span>
+    </a>
+    <div class="nav-meta"><span class="d"></span>Now enrolling · Study NB-2614</div>
+    <a href="#form" class="btn-orange">Check eligibility <span class="arrow">→</span></a>
+  </div>
+</nav>
+
+<!-- =============== HERO =============== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <p class="hero-eyebrow">Chronic Kidney Disease</p>
+        <h1 class="headline">Research study for adults with CKD.</h1>
+        <p class="lede">Northbrook is enrolling adults aged 22&ndash;75 with moderate kidney function decline to evaluate an investigational oral therapy. Pre-qualifying takes about a minute.</p>
+
+        <p class="receive-h">Qualified participants receive</p>
+        <ul class="benefits">
+          <li class="check-bullet">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/><path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Up to <strong style="font-weight:700">$2,800</strong> compensation, plus travel
+          </li>
+          <li class="check-bullet">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/><path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Study-related care at no cost to you
+          </li>
+          <li class="check-bullet">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/><path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Access to board-certified nephrologists
+          </li>
+          <li class="check-bullet">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/><path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Health insurance not required
+          </li>
+        </ul>
+
+        <div class="hero-cta-row">
+          <a href="#study" class="btn-ghost">Read about the study <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="hero-image-col">
+        <div class="hero-img-wrap" aria-label="Patient lifestyle photo">
+          <span class="ph-tag">Patient lifestyle photo</span>
+          <div class="stat-pill">
+            <div class="v">$2,800</div>
+            <div class="l">Compensation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-form-col" id="form">
+        <div class="hero-form-shell">
+          <div class="form-card">
+            <div class="form-head">
+              <h3>Check eligibility</h3>
+              <span class="step-frac" id="stepFrac">01 / 06</span>
+            </div>
+            <div class="progress-line" id="progLine" style="--p:14%"></div>
+            <div id="formSteps"></div>
+            <p class="form-foot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="6" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 6 V4 C5 2.9 5.9 2 7 2 C8.1 2 9 2.9 9 4 V6" stroke="currentColor" stroke-width="1.2"/></svg>
+              HIPAA compliant. Your answers stay private.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== TRUST STRIP =============== -->
+<div class="trust-strip">
+  <div class="inner">
+    <span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1 L12 3 V7 C12 9.5 10 11.5 7 12.5 C4 11.5 2 9.5 2 7 V3 L7 1 Z" stroke="currentColor" stroke-width="1.4"/><path d="M5 7 L6.5 8.5 L9 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      HIPAA Compliant
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M4 7 L6 9 L10 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      IRB Approved Protocol
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 11 V5 L7 2 L12 5 V11" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5 11 V8 H9 V11" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      34 Research Sites · 21 States
+    </span>
+    <span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M7 4 V7 L9 8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      ~60 Seconds to Pre-qualify
+    </span>
+  </div>
+</div>
+
+<!-- =============== STATS =============== -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="k">Age range</div>
+      <div class="v">22<small>–75</small></div>
+      <div class="sub">Adults of any sex</div>
+    </div>
+    <div class="stat">
+      <div class="k">Duration</div>
+      <div class="v">26<small>wks</small></div>
+      <div class="sub">From screening to follow-up</div>
+    </div>
+    <div class="stat">
+      <div class="k">Visits</div>
+      <div class="v">6<small>+2 remote</small></div>
+      <div class="sub">On-site clinical visits</div>
+    </div>
+    <div class="stat">
+      <div class="k">Compensation</div>
+      <div class="v">$2,800</div>
+      <div class="sub">Plus travel reimbursement</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== ABOUT THE STUDY =============== -->
+<section class="about-study" id="study">
+  <div class="wrap">
+    <div class="about-study-grid">
+      <div class="side-label">01 — The Study</div>
+      <div class="study-body">
+        <h2>An investigational therapy for moderate kidney function decline.</h2>
+        <p>The purpose of this study is to evaluate the safety and effectiveness of an investigational oral medication in adults diagnosed with chronic kidney disease (CKD) stages 2–4. Participants are monitored over 26 weeks with regular bloodwork, eGFR tracking, and clinical assessments.</p>
+        <p>This study is conducted under the oversight of an independent Institutional Review Board / Ethics Committee, which exists to ensure the rights, safety, and well-being of every participant.</p>
+
+        <div class="criteria">
+          <div class="criteria-row">
+            <span class="k">Who can join</span>
+            <span class="v">Adults aged 22 to 75 of any sex, diagnosed with CKD stages 2–4.</span>
+          </div>
+          <div class="criteria-row">
+            <span class="k">Kidney function</span>
+            <span class="v">Estimated glomerular filtration rate (eGFR) between 30 and 89.</span>
+          </div>
+          <div class="criteria-row">
+            <span class="k">Not eligible if</span>
+            <span class="v">Currently receiving dialysis, or kidney transplant within the past 12 months.</span>
+          </div>
+          <div class="criteria-row">
+            <span class="k">Time commitment</span>
+            <span class="v">Six on-site visits and two remote check-ins across 26 weeks.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CTA =============== -->
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-grid">
+      <div>
+        <span class="eyebrow" style="color: rgba(255,255,255,.7);">Find a paid clinical trial today</span>
+        <h2>You could be paid up to $2,800 to take part in this study.</h2>
+        <p>Pre-qualifying takes about a minute, and there's never a cost to participate — health insurance isn't required.</p>
+      </div>
+      <div class="cta-right">
+        <a href="#form" class="btn-orange lg">Check eligibility <span class="arrow">→</span></a>
+        <div class="stat-row" style="margin-top: 12px;"><strong>1,420+</strong>people enrolled this year</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== WHY =============== -->
+<section class="why" id="why">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="side-label">02 — Why join</div>
+      <div>
+        <h2>Four reasons people choose to participate.</h2>
+        <ol class="why-list">
+          <li>
+            <span class="num">01</span>
+            <div class="body">
+              <h3>Care from kidney specialists.</h3>
+              <p>Every visit includes time with board-certified nephrologists and research clinicians who focus specifically on chronic kidney disease.</p>
+            </div>
+          </li>
+          <li>
+            <span class="num">02</span>
+            <div class="body">
+              <h3>Access to investigational therapy.</h3>
+              <p>Participants may receive a treatment under study before it's available to the public, while contributing to the evidence that gets new medicine approved.</p>
+            </div>
+          </li>
+          <li>
+            <span class="num">03</span>
+            <div class="body">
+              <h3>Compensation for your time.</h3>
+              <p>Qualified participants are paid for completed visits and reimbursed for related travel expenses — this isn't volunteer work.</p>
+            </div>
+          </li>
+          <li>
+            <span class="num">04</span>
+            <div class="body">
+              <h3>No insurance, no cost.</h3>
+              <p>All study-related care is provided at no cost to you, and health insurance isn't required to enroll or stay enrolled.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== ABOUT US =============== -->
+<section class="about-us" id="about">
+  <div class="wrap">
+    <div class="about-us-grid">
+      <div class="side-label">03 — About</div>
+      <div class="col">
+        <h2>Northbrook <span>Research.</span></h2>
+        <div class="about-meta">
+          <div class="cell">Founded<strong>2018</strong></div>
+          <div class="cell">Headquarters<strong>Boston, MA</strong></div>
+          <div class="cell">Active sites<strong>34 in 21 states</strong></div>
+          <div class="cell">Total enrolled<strong>14,200+</strong></div>
+        </div>
+      </div>
+      <div class="col">
+        <p>Northbrook is an independent clinical trial network. We work with research sites across the United States to enroll adults in studies of new therapies — many of which won't be available outside of clinical trials for several more years.</p>
+        <p>We do the work of matching: connecting people who want to be considered for a study with the sites that are actively looking for participants. There's no cost to you, ever, and insurance isn't required to take part.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a href="#" class="logo">
+          <span class="mark">N</span>
+          <span class="name">Northbrook <span>Research</span></span>
+        </a>
+        <p class="desc">An independent clinical trial matchmaking network for adults across the United States.</p>
+        <div class="compliance">
+          <span class="pill"><span class="d"></span>HIPAA Compliant</span>
+          <span class="pill">IRB Approved</span>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h4>Study</h4>
+        <a href="#study">About this trial</a>
+        <a href="#form">Check eligibility</a>
+        <a href="#">Locations</a>
+        <a href="#">FAQ</a>
+      </div>
+      <div class="foot-col">
+        <h4>Northbrook</h4>
+        <a href="#about">About us</a>
+        <a href="#">Research partners</a>
+        <a href="#">Press</a>
+        <a href="#">Careers</a>
+      </div>
+      <div class="foot-col">
+        <h4>Get in touch</h4>
+        <a href="/cdn-cgi/l/email-protection#58303d3434371836372a2c303a2a373733762a3d2b3d392a3b30"><span class="__cf_email__" data-cfemail="c6aea3aaaaa986a8a9b4b2aea4b4a9a9ade8b4a3b5a3a7b4a5ae">[email&#160;protected]</span></a>
+        <a href="tel:+18885550199">+1 (888) 555-0199</a>
+        <a href="#">Mon–Fri, 8a–6p ET</a>
+      </div>
+    </div>
+
+    <p class="legal">These terms and conditions govern your use of this website. By using this website, you accept these terms in full. You must be at least 18 years of age to use this website. By using this website and agreeing to these terms, you warrant and represent that you are at least 18 years of age. Study participation is voluntary and subject to screening by qualified clinical staff.</p>
+
+    <div class="foot-bottom">
+      <span>© 2026 Northbrook Research, Inc. All rights reserved.</span>
+      <div class="links">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Cookies</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+(function(){
+  const steps = [
+    { id: 'height', label: 'What is your height?', render: (v) => `
+      <div class="input-row">
+        <input class="inp" data-k="feet" placeholder="Feet" inputmode="numeric" value="${v.feet||''}"/>
+        <input class="inp" data-k="inches" placeholder="Inches" inputmode="numeric" value="${v.inches||''}"/>
+      </div>`,
+      ready: (v) => v.feet && v.inches
+    },
+    { id: 'weight', label: 'What is your weight, in pounds?', render: (v) => `
+      <div class="input-row col">
+        <input class="inp" data-k="weight" placeholder="e.g. 175" inputmode="numeric" value="${v.weight||''}"/>
+      </div>`,
+      ready: (v) => v.weight
+    },
+    { id: 'age', label: 'What is your age?', render: (v) => `
+      <div class="input-row col">
+        <input class="inp" data-k="age" placeholder="Age in years" inputmode="numeric" value="${v.age||''}"/>
+      </div>`,
+      ready: (v) => v.age && +v.age >= 18
+    },
+    { id: 'diag', label: 'Have you been diagnosed with chronic kidney disease?', render: (v) => `
+      <div class="radio-group" data-k="diag">
+        ${['Yes, currently','Yes, in the past','No','I\'m not sure'].map(o => `
+          <label class="radio-opt ${v.diag===o?'sel':''}">
+            <span class="dot"></span>
+            <input type="radio" name="diag" value="${o}" ${v.diag===o?'checked':''} style="display:none"/>
+            <span>${o}</span>
+          </label>`).join('')}
+      </div>`,
+      ready: (v) => !!v.diag
+    },
+    { id: 'dialysis', label: 'Are you currently receiving dialysis?', render: (v) => `
+      <div class="radio-group" data-k="dialysis">
+        ${['No','Yes','Previously, but not now'].map(o => `
+          <label class="radio-opt ${v.dialysis===o?'sel':''}">
+            <span class="dot"></span>
+            <input type="radio" name="dialysis" value="${o}" ${v.dialysis===o?'checked':''} style="display:none"/>
+            <span>${o}</span>
+          </label>`).join('')}
+      </div>`,
+      ready: (v) => !!v.dialysis
+    },
+    { id: 'contact', label: 'Where should we reach you?', render: (v) => `
+      <div class="input-row col">
+        <input class="inp" data-k="email" type="email" placeholder="Email address" value="${v.email||''}"/>
+        <input class="inp" data-k="zip" placeholder="ZIP code" inputmode="numeric" value="${v.zip||''}"/>
+      </div>`,
+      ready: (v) => /.+@.+\..+/.test(v.email||'') && (v.zip||'').length>=5
+    }
+  ];
+
+  const state = { idx: 0, values: {}, done: false };
+  const stepsRoot = document.getElementById('formSteps');
+  const progLine = document.getElementById('progLine');
+  const stepFrac = document.getElementById('stepFrac');
+
+  function pad(n) { return n.toString().padStart(2, '0'); }
+
+  function render() {
+    if (state.done) {
+      progLine.style.setProperty('--p', '100%');
+      stepFrac.textContent = 'DONE';
+      stepsRoot.innerHTML = `
+        <div class="success-state">
+          <div class="check">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12.5 L10 17.5 L19 7.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>You may be eligible.</h3>
+          <p>A study coordinator will reach out within 1–2 business days. Watch for an email from northbrook.research.</p>
+        </div>`;
+      return;
+    }
+    const s = steps[state.idx];
+    const pct = ((state.idx) / steps.length * 100 + 14);
+    progLine.style.setProperty('--p', pct + '%');
+    stepFrac.textContent = `${pad(state.idx+1)} / ${pad(steps.length)}`;
+    const ready = s.ready(state.values);
+
+    stepsRoot.innerHTML = `
+      <p class="q-label">${s.label}</p>
+      ${s.render(state.values)}
+      <div class="form-actions">
+        ${state.idx>0 ? '<button class="btn-back" id="backBtn">← Back</button>' : '<span></span>'}
+        <button class="btn-cont ${ready?'ready':''}" id="contBtn">${state.idx===steps.length-1?'Submit':'Continue'} <span style="opacity:.8">→</span></button>
+      </div>
+    `;
+
+    stepsRoot.querySelectorAll('input.inp').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        state.values[inp.dataset.k] = e.target.value;
+        document.getElementById('contBtn').classList.toggle('ready', s.ready(state.values));
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && s.ready(state.values)) document.getElementById('contBtn').click();
+      });
+    });
+    stepsRoot.querySelectorAll('input[type=radio]').forEach(r => {
+      r.addEventListener('change', (e) => {
+        const grp = r.closest('.radio-group');
+        const key = grp.dataset.k;
+        state.values[key] = e.target.value;
+        render();
+      });
+    });
+    stepsRoot.querySelectorAll('.radio-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const r = opt.querySelector('input[type=radio]');
+        if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
+      });
+    });
+    document.getElementById('contBtn').addEventListener('click', () => {
+      if (!s.ready(state.values)) return;
+      if (state.idx === steps.length - 1) state.done = true;
+      else state.idx++;
+      render();
+    });
+    const back = document.getElementById('backBtn');
+    if (back) back.addEventListener('click', () => { state.idx--; render(); });
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
