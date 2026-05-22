@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { TrialQuestion, ContactField } from "@/lib/trials/types";
 import { ELIGIBLE_ZIPS_CKD14 } from "@/lib/data/eligible-zips-ckd14";
 import ConsentStep, { type ConsentValues } from "./consent-step";
+import AddressAutocomplete from "./address-autocomplete";
 
 type Props = {
   trialId: string;
@@ -40,7 +41,7 @@ const FIELD_META: Record<ContactField, FieldMeta> = {
   phone: { label: "Phone", type: "tel", placeholder: "Phone (must be 10 digits)", inputMode: "tel" },
   dob: { label: "Date of Birth", type: "text", placeholder: "mm/dd/yyyy", inputMode: "numeric" },
   sex: { label: "Gender", type: "select", options: ["Female", "Male"] },
-  address: { label: "Address", type: "text", placeholder: "Street address (optional)" },
+  address: { label: "Address", type: "text", placeholder: "Start typing your address..." },
   zipCode: { label: "Zip Code", type: "text", placeholder: "Zip Code", inputMode: "numeric" },
   ethnicity: { label: "Ethnicity", type: "ethnicity" },
   doctorDetails: {
@@ -59,6 +60,7 @@ const PART_1_LAYOUT: ContactField[][] = [
 
 const PART_2_LAYOUT: ContactField[][] = [
   ["dob", "sex"],
+  ["address"],
   ["ethnicity"],
   ["doctorDetails"],
 ];
@@ -122,7 +124,10 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   const part2Fields = part2Rows.flat();
 
   function arePart1Valid(): boolean {
-    return part1Fields.every((f) => !!values[f]?.trim());
+    return part1Fields.every((f) => {
+      if (f === "address") return true;
+      return !!values[f]?.trim();
+    });
   }
 
   function arePart2Valid(): boolean {
@@ -343,6 +348,20 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   function renderField(field: ContactField) {
     const meta = FIELD_META[field];
     const filled = !!values[field];
+
+    if (field === "address") {
+      return (
+        <div key={field}>
+          <AddressAutocomplete
+            value={values[field] || ""}
+            onSelect={(address) => setValue("address", address)}
+            className={inputCls}
+            placeholder={meta.placeholder}
+          />
+          <p className="text-[11px] text-[var(--ink-3)] m-0 mt-1">Required for medical records lookup</p>
+        </div>
+      );
+    }
 
     if (meta.type === "ethnicity") {
       return (

@@ -84,12 +84,18 @@ function parseScreeningJson(raw: string): ScreeningData {
 }
 
 export async function POST(request: NextRequest) {
+  const rawText = await request.text();
+  console.log("RELAY RECEIVED RAW:", rawText);
+
   let body: LeadsPediaDeliveryPayload;
   try {
-    body = await request.json();
+    body = JSON.parse(rawText);
   } catch {
+    console.error("RELAY: Failed to parse JSON body:", rawText.slice(0, 500));
     return NextResponse.json({ status: "error", message: "Invalid JSON" }, { status: 400 });
   }
+
+  console.log("RELAY PARSED BODY:", JSON.stringify(body));
 
   const { first_name, last_name, email_address, phone_home, zip_code, dob, gender, address, screening_json, doctor_details } = body;
 
@@ -135,6 +141,7 @@ export async function POST(request: NextRequest) {
   };
 
   const payload = mapToHealthMatchPayload(lead, screening, trialSiteId, CONDITION_ID);
+  console.log("HEALTHMATCH PAYLOAD:", JSON.stringify(payload, null, 2));
 
   try {
     const hmResponse = await fetch(HEALTHMATCH_REFER_URL, {
@@ -144,6 +151,8 @@ export async function POST(request: NextRequest) {
     });
 
     const hmText = await hmResponse.text();
+    console.log("HEALTHMATCH RESPONSE STATUS:", hmResponse.status);
+    console.log("HEALTHMATCH RESPONSE BODY:", hmText.slice(0, 1000));
     let hmJson: HealthMatchResponse;
     try {
       hmJson = JSON.parse(hmText);

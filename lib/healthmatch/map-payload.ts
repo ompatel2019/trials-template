@@ -40,12 +40,14 @@ export type LeadData = {
 function buildAttributeValueInput(screening: ScreeningData): AttributeValueInput[] {
   const attrs: AttributeValueInput[] = [];
 
-  // African ancestry
-  attrs.push({
-    attributeDefinitionId: 26748,
-    isSkipped: false,
-    radioAttributeValue: screening.hasAfricanAncestry ? "000-kiodu" : "001-abcde",
-  });
+  // African ancestry — only include if Yes
+  if (screening.hasAfricanAncestry) {
+    attrs.push({
+      attributeDefinitionId: 26748,
+      isSkipped: false,
+      radioAttributeValue: "000-kiodu",
+    });
+  }
 
   // CKD diagnosis
   attrs.push({

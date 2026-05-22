@@ -205,6 +205,7 @@ export const ckd001: TrialConfig = {
     "email",
     "phone",
     "zipCode",
+    "address",
     "dob",
     "sex",
     "ethnicity",
