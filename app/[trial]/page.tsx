@@ -47,7 +47,7 @@ export default async function TrialPage({ params }: Props) {
       {/* ── Hero ── */}
       <section className="hero-pattern pt-[130px] pb-[90px] bg-[var(--bg-tint)] relative overflow-hidden animate-[fadeIn_0.5s_ease-out_both] max-md:pt-[100px] max-md:pb-[60px]">
         <div className="max-w-[1240px] mx-auto px-14 max-lg:px-8 max-md:px-5 max-xs:px-4">
-          <div className="relative grid grid-cols-[1.1fr_0.7fr_0.95fr] gap-8 items-stretch max-lg:grid-cols-[1fr_1fr] max-md:grid-cols-[1fr]">
+          <div className="relative grid grid-cols-[1.1fr_0.7fr_0.95fr] gap-8 items-start max-lg:grid-cols-[1fr_1fr] max-md:grid-cols-[1fr]">
             {/* Left: Text */}
             <div className="pt-1 min-w-0 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.1s]">
               <p className="font-serif italic font-medium text-[30px] leading-none text-[var(--blue)] tracking-[-0.01em] m-0 mb-3 max-md:text-[24px] max-xs:text-[20px]">
@@ -87,8 +87,8 @@ export default async function TrialPage({ params }: Props) {
             </div>
 
             {/* Center: Image */}
-            <div className="self-stretch flex min-w-0 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s] max-lg:hidden">
-              <div className="hero-img-texture relative w-full rounded-[14px] overflow-hidden bg-[radial-gradient(120%_80%_at_30%_20%,#e8f0fb_0%,#d8e4f6_55%,#b9cbe8_100%)] shadow-[0_30px_60px_-28px_rgba(13,23,48,.22),0_2px_0_rgba(13,23,48,.04)]" aria-label="Patient lifestyle photo">
+            <div className="self-start flex min-w-0 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s] max-lg:hidden">
+              <div className="hero-img-texture relative w-full min-h-[420px] rounded-[14px] overflow-hidden bg-[radial-gradient(120%_80%_at_30%_20%,#e8f0fb_0%,#d8e4f6_55%,#b9cbe8_100%)] shadow-[0_30px_60px_-28px_rgba(13,23,48,.22),0_2px_0_rgba(13,23,48,.04)]" aria-label="Patient lifestyle photo">
                 <span className="absolute top-4 left-4 bg-white/[.92] text-[var(--ink-2)] font-mono text-[10px] tracking-[0.08em] uppercase py-[5px] px-[9px] rounded-[3px] backdrop-blur-[4px] z-[2]">
                   Patient lifestyle photo
                 </span>
@@ -105,8 +105,10 @@ export default async function TrialPage({ params }: Props) {
               <div className="w-full bg-[var(--blue-2)] rounded-2xl p-[18px] shadow-[0_30px_60px_-28px_rgba(13,46,111,.35)] relative">
                 <TrialForm
                   trialId={config.trialId}
+                  trialCode={config.leadspediaTrialCode}
                   questions={config.questions}
                   contactFields={config.contactFields}
+                  healthmatchTrialId={config.healthmatchTrialId}
                   compact
                 />
               </div>

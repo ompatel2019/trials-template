@@ -1,4 +1,4 @@
-export type QuestionType = "boolean" | "select" | "height" | "weight" | "text";
+export type QuestionType = "boolean" | "select" | "multiselect" | "height" | "weight" | "text";
 
 export type TrialQuestion = {
   id: string;
@@ -6,6 +6,8 @@ export type TrialQuestion = {
   type: QuestionType;
   options?: string[];
   required: boolean;
+  disqualifyIf?: string[];
+  disqualifyIfAny?: string[];
 };
 
 export type ContactField =
@@ -17,7 +19,8 @@ export type ContactField =
   | "sex"
   | "address"
   | "zipCode"
-  | "ethnicity";
+  | "ethnicity"
+  | "doctorDetails";
 
 export type Benefit = {
   text: string;
@@ -81,4 +84,7 @@ export type TrialConfig = {
   questions: TrialQuestion[];
   contactFields: ContactField[];
   consent: Record<string, boolean>;
+  leadspediaTrialCode: string;
+  healthmatchTrialId?: string;
+  healthmatchConditionId?: string;
 };
