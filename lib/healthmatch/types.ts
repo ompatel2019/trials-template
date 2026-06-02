@@ -4,7 +4,7 @@ export type AttributeValueInput =
   | { attributeDefinitionId: number; isSkipped: false; radioAttributeValue: string };
 
 export type EmrConsent = {
-  consentedSignedAt: string;
+  consentSignedAt: string;
   consentTemplateVersion: number;
 };
 

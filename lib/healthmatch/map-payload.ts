@@ -227,7 +227,7 @@ export function mapToHealthMatchPayload(
     trialSiteId,
     attributeValueInput: buildAttributeValueInput(screening),
     emrConsent: {
-      consentedSignedAt: new Date().toISOString(),
+      consentSignedAt: new Date().toISOString(),
       consentTemplateVersion: 2,
     },
     doctorDetails: lead.doctorDetails || undefined,
