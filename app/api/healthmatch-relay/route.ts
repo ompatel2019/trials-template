@@ -7,7 +7,7 @@ const HEALTHMATCH_REFER_URL =
   process.env.HEALTHMATCH_REFER_URL || "https://graphql-api.healthmatch.io/refer-patient";
 
 const TRIAL_ID = "AZCKDD6800C00005";
-const CONDITION_ID = "400";
+const CONDITION_ID = 400;
 
 type LeadsPediaDeliveryPayload = {
   first_name: string;

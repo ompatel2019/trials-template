@@ -207,7 +207,7 @@ export function mapToHealthMatchPayload(
   lead: LeadData,
   screening: ScreeningData,
   trialSiteId: string,
-  conditionId: string
+  conditionId: number
 ): HealthMatchReferralPayload {
   return {
     email: lead.email,

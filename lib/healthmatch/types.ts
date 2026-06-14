@@ -27,7 +27,7 @@ export type HealthMatchReferralPayload = {
   consentToHmTCsVersion: string;
   sex: "M" | "F";
   dob: string;
-  condition: string;
+  condition: number;
   country: string;
   suburb: string;
   address: string;

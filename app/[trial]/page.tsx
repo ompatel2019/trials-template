@@ -321,9 +321,9 @@ export default async function TrialPage({ params }: Props) {
               </span>
             </div>
             <div className="flex items-center gap-3 text-[14.5px]">
-              <a href="#" className="text-[var(--ink)] no-underline hover:text-[var(--blue)] transition-colors duration-200">Terms of Use</a>
+              <a target="_blank" href="https://goodlab.org/terms.html" className="text-[var(--ink)] no-underline hover:text-[var(--blue)] transition-colors duration-200">Terms of Use</a>
               <span className="text-[var(--ink-3)] text-[12px]">|</span>
-              <a href="#" className="text-[var(--ink)] no-underline hover:text-[var(--blue)] transition-colors duration-200">Privacy Policy</a>
+              <a target="_blank" href="https://goodlab.org/privacypol.html" className="text-[var(--ink)] no-underline hover:text-[var(--blue)] transition-colors duration-200">Privacy Policy</a>
               <span className="text-[var(--ink-3)] text-[12px]">|</span>
               <a href="#" className="text-[var(--ink)] no-underline hover:text-[var(--blue)] transition-colors duration-200">Get In Touch</a>
             </div>
@@ -339,7 +339,7 @@ export default async function TrialPage({ params }: Props) {
               <a href="https://www.facebook.com/GoodLab-Clinical-Trials-101038139196316" target="_blank" rel="noopener noreferrer" className="text-[var(--ink-3)] no-underline inline-flex hover:text-[var(--ink)] transition-colors duration-200">
                 <FaFacebookF size={16} />
               </a>
-              <a href="https://www.linkedin.com/company/goodlab" target="_blank" rel="noopener noreferrer" className="text-[var(--ink-3)] no-underline inline-flex hover:text-[var(--ink)] transition-colors duration-200">
+              <a href="https://www.linkedin.com/company/goodlabtrials" target="_blank" rel="noopener noreferrer" className="text-[var(--ink-3)] no-underline inline-flex hover:text-[var(--ink)] transition-colors duration-200">
                 <FaLinkedinIn size={16} />
               </a>
             </div>
