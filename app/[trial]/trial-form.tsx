@@ -58,14 +58,17 @@ const PART_1_LAYOUT: ContactField[][] = [
   ["zipCode"],
 ];
 
-const PART_2_LAYOUT: ContactField[][] = [
+const PART_2A_LAYOUT: ContactField[][] = [
   ["dob", "sex"],
   ["address"],
+];
+
+const PART_2B_LAYOUT: ContactField[][] = [
   ["ethnicity"],
   ["doctorDetails"],
 ];
 
-type Phase = "screening" | "details_1" | "details_2" | "consent" | "submitting" | "success" | "rejected";
+type Phase = "screening" | "details_1" | "details_2a" | "details_2b" | "consent" | "submitting" | "success" | "rejected";
 
 export default function TrialForm({ trialId, trialCode, questions, contactFields, healthmatchTrialId, compact }: Props) {
   const [phase, setPhase] = useState<Phase>("screening");
@@ -78,7 +81,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   const [selectedEthnicities, setSelectedEthnicities] = useState<string[]>([]);
 
   const totalScreening = questions.length;
-  const contactSteps = 3; // details_1, details_2, consent
+  const contactSteps = 4; // details_1, details_2a, details_2b, consent
 
   function setValue(key: string, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
@@ -119,9 +122,11 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   }
 
   const part1Rows = filterLayout(PART_1_LAYOUT);
-  const part2Rows = filterLayout(PART_2_LAYOUT);
+  const part2aRows = filterLayout(PART_2A_LAYOUT);
+  const part2bRows = filterLayout(PART_2B_LAYOUT);
   const part1Fields = part1Rows.flat();
-  const part2Fields = part2Rows.flat();
+  const part2aFields = part2aRows.flat();
+  const part2bFields = part2bRows.flat();
 
   function arePart1Valid(): boolean {
     return part1Fields.every((f) => {
@@ -130,11 +135,17 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     });
   }
 
-  function arePart2Valid(): boolean {
-    return part2Fields.every((f) => {
+  function arePart2aValid(): boolean {
+    return part2aFields.every((f) => {
+      if (f === "address") return true;
+      return !!values[f]?.trim();
+    });
+  }
+
+  function arePart2bValid(): boolean {
+    return part2bFields.every((f) => {
       if (f === "ethnicity") return selectedEthnicities.length > 0;
       if (f === "doctorDetails") return true;
-      if (f === "address") return true;
       return !!values[f]?.trim();
     });
   }
@@ -186,7 +197,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     }
     setZipError("");
     fetchSiteConsent(zip);
-    setPhase("details_2");
+    setPhase("details_2a");
   }
 
   async function fetchSiteConsent(zip: string) {
@@ -225,8 +236,14 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     }
   }
 
-  function submitPart2() {
-    if (arePart2Valid()) {
+  function submitPart2a() {
+    if (arePart2aValid()) {
+      setPhase("details_2b");
+    }
+  }
+
+  function submitPart2b() {
+    if (arePart2bValid()) {
       setPhase("consent");
     }
   }
@@ -292,8 +309,11 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
         body: JSON.stringify(payload),
       });
       const json = await res.json();
-      if (json.result === "success" || json.result === "failed") {
+      if (json.result === "success") {
         setPhase("success");
+      } else if (json.result === "failed") {
+        setSubmitError(json.message || "We couldn't submit your referral. Please try again.");
+        setPhase("consent");
       } else {
         setSubmitError(json.message || "Something went wrong. Please try again.");
         setPhase("consent");
@@ -309,12 +329,16 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     setStep(totalScreening - 1);
   }
 
-  function backFromPart2() {
+  function backFromPart2a() {
     setPhase("details_1");
   }
 
+  function backFromPart2b() {
+    setPhase("details_2a");
+  }
+
   function backFromConsent() {
-    setPhase("details_2");
+    setPhase("details_2b");
   }
 
   // Progress: two separate bars — screening and contact form
@@ -323,10 +347,12 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     progress = ((step + 1) / totalScreening) * 100;
   } else if (phase === "details_1") {
     progress = (1 / contactSteps) * 100;
-  } else if (phase === "details_2") {
+  } else if (phase === "details_2a") {
     progress = (2 / contactSteps) * 100;
+  } else if (phase === "details_2b") {
+    progress = (3 / contactSteps) * 100;
   } else if (phase === "consent") {
-    progress = (2.5 / contactSteps) * 100;
+    progress = (3.5 / contactSteps) * 100;
   } else {
     progress = 100;
   }
@@ -450,6 +476,46 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       );
     }
 
+    if (field === "dob") {
+      return (
+        <input
+          key={field}
+          className={inputCls}
+          type="text"
+          placeholder={meta.placeholder}
+          inputMode="numeric"
+          value={values[field] ?? ""}
+          onKeyDown={(e) => {
+            if (e.key === "Backspace") {
+              e.preventDefault();
+              const cur = values[field] ?? "";
+              if (cur.length === 0) return;
+              const trimmed = cur.endsWith("/") ? cur.slice(0, -2) : cur.slice(0, -1);
+              setValue(field, trimmed);
+            }
+          }}
+          onChange={(e) => {
+            const prev = values[field] ?? "";
+            const next = e.target.value;
+            if (next.length < prev.length) return;
+            const raw = next.replace(/\D/g, "").slice(0, 8);
+            let formatted = raw;
+            if (raw.length > 4) {
+              formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4)}`;
+            } else if (raw.length === 4) {
+              formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/`;
+            } else if (raw.length > 2) {
+              formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
+            } else if (raw.length === 2) {
+              formatted = `${raw}/`;
+            }
+            setValue(field, formatted);
+          }}
+          maxLength={10}
+        />
+      );
+    }
+
     return (
       <input
         key={field}
@@ -481,7 +547,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       }
     >
       {/* Header */}
-      {(phase === "screening" || phase === "details_1" || phase === "details_2" || phase === "consent") && (
+      {(phase === "screening" || phase === "details_1" || phase === "details_2a" || phase === "details_2b" || phase === "consent") && (
         <div className={`${compact ? "mb-4" : "mb-3.5"}`}>
           <h3 className={`font-bold m-0 tracking-[-0.01em] leading-[1.2] ${compact ? "text-[18px]" : "text-[22px]"}`}>
             {phase === "screening" ? "Check eligibility" : phase === "consent" ? "Consent" : "Your details"}
@@ -691,21 +757,42 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
         </div>
       )}
 
-      {/* Details Part 2 */}
-      {phase === "details_2" && (
+      {/* Details Part 2a — DOB, Gender, Address */}
+      {phase === "details_2a" && (
         <div>
           <div className="text-center mb-5">
             <p className={`font-bold text-[var(--ink)] m-0 mb-1.5 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
-              Almost done.
+              Personal details
             </p>
             <p className="text-[13.5px] text-[var(--ink-2)] m-0">
-              A few more details to match you with the right site:
+              When is your date of birth, and where are you located?
             </p>
           </div>
-          <div className="flex flex-col gap-2.5">{part2Rows.map(renderRow)}</div>
+          <div className="flex flex-col gap-2.5">{part2aRows.map(renderRow)}</div>
           <div className="flex items-center justify-between gap-3 mt-6">
-            <button type="button" className={backBtnCls} onClick={backFromPart2}>← Back</button>
-            <button type="button" className={continueBtnCls(arePart2Valid())} onClick={submitPart2}>
+            <button type="button" className={backBtnCls} onClick={backFromPart2a}>← Back</button>
+            <button type="button" className={continueBtnCls(arePart2aValid())} onClick={submitPart2a}>
+              Continue <span style={{ opacity: 0.8 }}>→</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Details Part 2b — Ethnicity, Doctor */}
+      {phase === "details_2b" && (
+        <div>
+          <div className="text-center mb-5">
+            <p className={`font-bold text-[var(--ink)] m-0 mb-1.5 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
+              Background &amp; medical history
+            </p>
+            <p className="text-[13.5px] text-[var(--ink-2)] m-0">
+              This helps us match you with the right research site:
+            </p>
+          </div>
+          <div className="flex flex-col gap-2.5">{part2bRows.map(renderRow)}</div>
+          <div className="flex items-center justify-between gap-3 mt-6">
+            <button type="button" className={backBtnCls} onClick={backFromPart2b}>← Back</button>
+            <button type="button" className={continueBtnCls(arePart2bValid())} onClick={submitPart2b}>
               Continue <span style={{ opacity: 0.8 }}>→</span>
             </button>
           </div>

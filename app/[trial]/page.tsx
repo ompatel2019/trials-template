@@ -47,37 +47,39 @@ export default async function TrialPage({ params }: Props) {
       {/* ── Hero ── */}
       <section className="hero-pattern pt-[130px] pb-[90px] bg-[var(--bg-tint)] relative overflow-hidden animate-[fadeIn_0.5s_ease-out_both] max-md:pt-[100px] max-md:pb-[60px]">
         <div className="max-w-[1240px] mx-auto px-14 max-lg:px-8 max-md:px-5 max-xs:px-4">
-          <div className="relative grid grid-cols-[1.1fr_0.7fr_0.95fr] gap-8 items-start max-lg:grid-cols-[1fr_1fr] max-md:grid-cols-[1fr]">
+          <div className="relative grid grid-cols-[3fr_2fr] gap-20 items-start max-md:grid-cols-1 max-md:gap-8">
             {/* Left: Text */}
-            <div className="pt-1 min-w-0 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.1s]">
-              <p className="font-serif italic font-medium text-[30px] leading-none text-[var(--blue)] tracking-[-0.01em] m-0 mb-3 max-md:text-[24px] max-xs:text-[20px]">
+            <div className="pt-1 min-w-0 flex flex-col space-y-12 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.1s]">
+              <p className="font-serif italic font-medium text-[30px] leading-none text-[var(--blue)] tracking-[-0.01em] m-0 max-md:text-[24px] max-xs:text-[20px] mb-2">
                 {config.subtitle}
               </p>
-              <h1 className="font-extrabold text-[40px] leading-[1.08] tracking-[-0.025em] text-[var(--ink)] m-0 mb-[22px] text-balance max-md:text-[30px] max-xs:text-[26px]">
+              <h1 className="font-extrabold text-[40px] leading-[1.08] tracking-[-0.025em] text-[var(--ink)] m-0 text-balance max-md:text-[30px] max-xs:text-[26px] mb-4">
                 {config.title}
               </h1>
-              <p className="text-[16.5px] leading-[1.6] text-[var(--ink-2)] m-0 mb-7 max-md:text-[15px]">
+              <p className="text-[16.5px] leading-[1.6] text-[var(--ink-2)] m-0 max-md:text-[15px] mb-6">
                 {config.heroDescription}
               </p>
 
-              <p className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--ink-3)] m-0 mb-3.5 pt-[22px] border-t border-[var(--rule)]">
-                Qualified participants receive
-              </p>
-              <ul className="list-none p-0 m-0 mb-8 flex flex-col gap-3">
-                {config.benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[15.5px] text-[var(--ink)] font-medium">
-                    <svg className="shrink-0 mt-[3px] text-[var(--blue)]" width="18" height="18" viewBox="0 0 20 20" fill="none">
-                      <circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/>
-                      <path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {benefit.bold ? (
-                      <>Up to <strong>{benefit.bold}</strong> {benefit.text}</>
-                    ) : (
-                      benefit.text
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col space-y-5 pt-8 border-t border-[var(--rule)]">
+                <p className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--ink-3)] m-0 mb-2">
+                  Qualified participants receive
+                </p>
+                <ul className="list-none p-0 m-0 flex flex-col gap-4">
+                  {config.benefits.map((benefit, i) => (
+                    <li key={i} className="flex items-start gap-3 text-[15.5px] text-[var(--ink)] font-medium">
+                      <svg className="shrink-0 mt-[3px] text-[var(--blue)]" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="10" fill="currentColor" opacity=".12"/>
+                        <path d="M5.5 10.5L8.5 13.5L14.5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {benefit.bold ? (
+                        <>Up to <strong>{benefit.bold}</strong> {benefit.text}</>
+                      ) : (
+                        benefit.text
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <div className="flex items-center gap-[18px] flex-wrap">
                 <a href="#study" className="group/ghost inline-flex items-center gap-1.5 bg-transparent text-[var(--ink)] border-0 py-[11px] px-1 font-semibold text-[14.5px] cursor-pointer no-underline whitespace-nowrap hover:text-[var(--blue)] transition-all duration-200">
@@ -86,21 +88,8 @@ export default async function TrialPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Center: Image */}
-            <div className="self-start flex min-w-0 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s] max-lg:hidden">
-              <div className="hero-img-texture relative w-full min-h-[420px] rounded-[14px] overflow-hidden bg-[radial-gradient(120%_80%_at_30%_20%,#e8f0fb_0%,#d8e4f6_55%,#b9cbe8_100%)] shadow-[0_30px_60px_-28px_rgba(13,23,48,.22),0_2px_0_rgba(13,23,48,.04)]" aria-label="Patient lifestyle photo">
-                <span className="absolute top-4 left-4 bg-white/[.92] text-[var(--ink-2)] font-mono text-[10px] tracking-[0.08em] uppercase py-[5px] px-[9px] rounded-[3px] backdrop-blur-[4px] z-[2]">
-                  Patient lifestyle photo
-                </span>
-                <div className="absolute left-4 bottom-4 bg-[var(--orange)] text-white py-3 px-4 rounded-[10px] font-bold shadow-[0_14px_28px_-8px_rgba(234,88,12,.45)] z-[2]">
-                  <div className="text-[20px] leading-none">{config.compensation}</div>
-                  <div className="text-[10.5px] opacity-[.92] mt-[3px] font-medium tracking-[0.04em] uppercase">Compensation</div>
-                </div>
-              </div>
-            </div>
-
             {/* Right: Form */}
-            <div className="self-start flex min-w-0 relative animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.35s]">
+            <div className="self-start flex min-w-0 relative animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s]">
               <span id="form" className="absolute -top-20"></span>
               <div className="w-full bg-[var(--blue-2)] rounded-2xl p-[18px] shadow-[0_30px_60px_-28px_rgba(13,46,111,.35)] relative">
                 <TrialForm
@@ -119,11 +108,11 @@ export default async function TrialPage({ params }: Props) {
 
       {/* ── Stats ── */}
       <section className="bg-white animate-[fadeUp_0.7s_ease-out_both]">
-        <div className="grid grid-cols-4 border-y border-[var(--rule)] max-lg:grid-cols-2 max-xs:grid-cols-1">
+        <div className="grid grid-cols-2 border-y border-[var(--rule)] max-xs:grid-cols-1">
           {config.stats.map((stat, i) => (
             <div
               key={i}
-              className="py-9 px-8 border-r border-[var(--rule)] last:border-r-0 animate-[fadeUp_0.5s_ease-out_both] max-md:py-6 max-md:px-5 max-xs:border-r-0 max-xs:border-b max-xs:border-[var(--rule)] max-xs:last:border-b-0"
+              className="py-9 px-8 border-r border-[var(--rule)] last:border-r-0 text-center animate-[fadeUp_0.5s_ease-out_both] max-md:py-6 max-md:px-5 max-xs:border-r-0 max-xs:border-b max-xs:border-[var(--rule)] max-xs:last:border-b-0"
               style={{ animationDelay: `${(i + 1) * 0.1}s` }}
             >
               <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-[var(--ink-3)] mb-3.5">
@@ -222,7 +211,7 @@ export default async function TrialPage({ params }: Props) {
                 {[
                   { icon: <Stethoscope size={28} strokeWidth={1.5} />, title: "Latest Treatments", desc: "Access new therapies and investigational medications before they become available to the general public." },
                   { icon: <MapPin size={28} strokeWidth={1.5} />, title: "Local Trials", desc: "Find studies at research sites near you — with flexible scheduling and travel support where available." },
-                  { icon: <DollarSign size={28} strokeWidth={1.5} />, title: "Potential Compensation", desc: "Qualified participants are paid for completed visits and reimbursed for related travel expenses." },
+                  { icon: <DollarSign size={28} strokeWidth={1.5} />, title: "Compensation for Time and Travel", desc: "Qualified participants receive compensation for time and travel — paid for completed visits and reimbursed for related travel expenses." },
                   { icon: <ShieldCheck size={28} strokeWidth={1.5} />, title: "Health Insurance Not Required", desc: "All study-related care is provided at no cost to you — insurance is never required to enroll or participate." },
                 ].map((item, i) => (
                   <li

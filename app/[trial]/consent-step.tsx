@@ -72,7 +72,7 @@ export default function ConsentStep({ siteConsentText, sitePreamble, onConsentsC
 
       <div className="flex flex-col gap-4">
         {/* HealthMatch Terms */}
-        <label className="flex gap-3 items-start cursor-pointer p-3 border border-[var(--rule)] rounded-lg hover:border-[var(--blue)] transition-colors" onClick={() => toggle("healthmatchTerms")}>
+        <label className="flex gap-3 items-start cursor-pointer py-3" onClick={() => toggle("healthmatchTerms")}>
           <span className={checkboxCls(consents.healthmatchTerms)}>
             {consents.healthmatchTerms && (
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -86,7 +86,7 @@ export default function ConsentStep({ siteConsentText, sitePreamble, onConsentsC
         </label>
 
         {/* EMR Consent */}
-        <div className="border border-[var(--rule)] rounded-lg p-3">
+        <div className="py-3 border-t border-[var(--rule)]">
           <label className="flex gap-3 items-start cursor-pointer" onClick={() => toggle("emrConsent")}>
             <span className={checkboxCls(consents.emrConsent)}>
               {consents.emrConsent && (
@@ -114,7 +114,7 @@ export default function ConsentStep({ siteConsentText, sitePreamble, onConsentsC
         </div>
 
         {/* Site-specific Consent */}
-        <label className="flex gap-3 items-start cursor-pointer p-3 border border-[var(--rule)] rounded-lg hover:border-[var(--blue)] transition-colors" onClick={() => toggle("siteConsent")}>
+        <label className="flex gap-3 items-start cursor-pointer py-3 border-t border-[var(--rule)]" onClick={() => toggle("siteConsent")}>
           <span className={checkboxCls(consents.siteConsent)}>
             {consents.siteConsent && (
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

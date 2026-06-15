@@ -203,6 +203,26 @@ function buildAttributeValueInput(screening: ScreeningData): AttributeValueInput
   return attrs;
 }
 
+/** HealthMatch expects YYYY-MM-DD; form collects mm/dd/yyyy. */
+export function normalizeDobForHealthMatch(dob: string): string {
+  const trimmed = dob.trim();
+  const usFormat = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(trimmed);
+  if (usFormat) {
+    const [, month, day, year] = usFormat;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+  return trimmed;
+}
+
+/** HealthMatch expects E.164, e.g. +14045551234. */
+export function normalizePhoneForHealthMatch(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  if (phone.trim().startsWith("+")) return phone.trim();
+  return phone.trim();
+}
+
 export function mapToHealthMatchPayload(
   lead: LeadData,
   screening: ScreeningData,
@@ -215,12 +235,12 @@ export function mapToHealthMatchPayload(
     lastName: lead.lastName,
     consentToHmTCsVersion: "latest",
     sex: lead.sex,
-    dob: lead.dob,
+    dob: normalizeDobForHealthMatch(lead.dob),
     condition: conditionId,
     country: "US",
     suburb: lead.zipCode,
     address: lead.address,
-    phoneNumber: lead.phone,
+    phoneNumber: normalizePhoneForHealthMatch(lead.phone),
     localeCode: "EN",
     thirdPartyContactConsentVersion: "4",
     consentLocaleCode: "EN",

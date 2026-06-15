@@ -14,39 +14,38 @@ export const ckd001: TrialConfig = {
   healthmatchConditionId: "400",
 
   heroDescription:
-    "Northbrook is enrolling adults aged 22–75 with moderate kidney function decline to evaluate an investigational oral therapy. Pre-qualifying takes about a minute.",
+    "Adults aged 18-65 who have kidney disease may qualify for this study. Pre-qualifying takes about a minute.",
 
-  compensation: "$2,800",
+  compensation: "",
 
   benefits: [
-    { text: "compensation, plus travel", bold: "Up to $2,800" },
+    { text: "Compensation for time and travel" },
     { text: "Study-related care at no cost to you" },
     { text: "Access to board-certified nephrologists" },
     { text: "Health insurance not required" },
   ],
 
   stats: [
-    { label: "Age range", value: "22–75", sub: "Adults of any sex" },
-    { label: "Duration", value: "26", unit: "wks", sub: "From screening to follow-up" },
-    { label: "Visits", value: "6", unit: "+2 remote", sub: "On-site clinical visits" },
-    { label: "Compensation", value: "$2,800", sub: "Plus travel reimbursement" },
+    { label: "Age range", value: "18–65", sub: "Adults of any sex" },
+    { label: "Duration", value: "8–24", unit: "wks", sub: "Trial length" },
   ],
 
-  studyHeadline: "An investigational therapy for moderate kidney function decline.",
+  studyHeadline: "An investigational treatment for APOL-1 mediated kidney disease.",
 
   studyDescription: [
-    "The purpose of this study is to evaluate the safety and effectiveness of an investigational oral medication in adults diagnosed with chronic kidney disease (CKD) stages 2–4. Participants are monitored over 26 weeks with regular bloodwork, eGFR tracking, and clinical assessments.",
-    "This study is conducted under the oversight of an independent Institutional Review Board / Ethics Committee, which exists to ensure the rights, safety, and well-being of every participant.",
+    "This study is investigating an investigational treatment for chronic kidney disease caused by genetic factors that primarily affect people of African descent, specifically focusing on APOL-1 mediated kidney disease.",
+    "The study aims to evaluate the safety and effectiveness of the investigational medication in slowing the progression of kidney disease in eligible participants. Participants will be randomly chosen to receive either the investigational medication or a placebo. About 2 out of 3 participants will receive the study drug. After this part of the study, everyone will have the chance to receive the study drug in a later phase, as long as early results show it's safe and helpful.",
+    "Should you express interest, the research site will contact you directly to provide further details and address any questions you may have about study requirements, risks/benefits, and compensation.",
   ],
 
   criteria: [
-    { label: "Who can join", value: "Adults aged 22 to 75 of any sex, diagnosed with CKD stages 2–4." },
+    { label: "Who can join", value: "Adults aged 18 to 65 of any sex with kidney disease." },
     { label: "Kidney function", value: "Estimated glomerular filtration rate (eGFR) between 30 and 89." },
     { label: "Not eligible if", value: "Currently receiving dialysis, or kidney transplant within the past 12 months." },
-    { label: "Time commitment", value: "Six on-site visits and two remote check-ins across 26 weeks." },
+    { label: "Time commitment", value: "Typically 8 to 24 weeks, depending on your participation." },
   ],
 
-  ctaHeadline: "You could be paid up to $2,800 to take part in this study.",
+  ctaHeadline: "See if you qualify for this kidney disease study.",
   ctaDescription:
     "Pre-qualifying takes about a minute, and there's never a cost to participate — health insurance isn't required.",
   ctaStat: { value: "1,420+", label: "people enrolled this year" },
@@ -64,9 +63,9 @@ export const ckd001: TrialConfig = {
         "Participants may receive a treatment under study before it's available to the public, while contributing to the evidence that gets new medicine approved.",
     },
     {
-      title: "Compensation for your time.",
+      title: "Compensation for time and travel.",
       description:
-        "Qualified participants are paid for completed visits and reimbursed for related travel expenses — this isn't volunteer work.",
+        "Qualified participants receive compensation for time and travel — paid for completed visits and reimbursed for related travel expenses.",
     },
     {
       title: "No insurance, no cost.",
