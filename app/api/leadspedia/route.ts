@@ -19,7 +19,7 @@ type FormPayload = {
   address: string;
   screening: Record<string, unknown>;
   consents: Record<string, boolean>;
-  attribution?: { affId?: string };
+  attribution?: { affId?: string; clickId?: string };
   doctorDetails?: string;
   ethnicity?: string[];
 };
@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
   const comments = buildScreeningSummary(screening || {});
   const screeningJson = buildCompactScreening(screening || {});
   const affId = attribution?.affId || "goodlab_direct";
+  const clickId = attribution?.clickId || "";
 
   const formData = new URLSearchParams({
     lp_response: "json",
@@ -149,7 +150,14 @@ export async function POST(request: NextRequest) {
     trackEvent("lead_submitted", { trial, zip: paddedZip });
 
     if (lpJson.result === "success") {
-      trackEvent("lead_accepted", { trial, zip: paddedZip, price: lpJson.price ?? 0, lead_id: lpJson.lead_id || "" });
+      if (clickId) {
+        const postbackUrl = new URL(process.env.VOLUUM_POSTBACK_URL || "https://signadios-lodsource.icu/postback");
+        postbackUrl.searchParams.set("cid", clickId);
+        if (lpJson.price) postbackUrl.searchParams.set("payout", String(lpJson.price));
+        postbackUrl.searchParams.set("currency", "USD");
+        fetch(postbackUrl.toString()).catch((e) => console.error("Voluum postback failed:", e));
+      }
+      trackEvent("lead_accepted", { trial, zip: paddedZip, price: lpJson.price ?? 0, lead_id: lpJson.lead_id || "", affId, clickId: clickId || undefined });
       return NextResponse.json({
         result: "success",
         price: lpJson.price,

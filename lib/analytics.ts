@@ -18,6 +18,8 @@ export type AnalyticsEvent = {
   reason?: string;
   question?: string;
   trialSiteId?: string;
+  affId?: string;
+  clickId?: string;
   [key: string]: unknown;
 };
 
@@ -132,6 +134,28 @@ export type FailureReasonCount = {
   count: number;
 };
 
+export type AffBreakdownRow = {
+  affId: string;
+  visits: number;
+  accepted: number;
+  revenue: number;
+  conversion: number;
+};
+
+/** Resolve traffic-source tag from explicit field or referrer URL. */
+export function resolveAffId(ev: AnalyticsEvent): string {
+  if (ev.affId && String(ev.affId).trim()) return String(ev.affId);
+  if (ev.ref) {
+    try {
+      const aff = new URL(ev.ref).searchParams.get("aff_id");
+      if (aff?.trim()) return aff;
+    } catch {
+      // ignore malformed ref
+    }
+  }
+  return "(direct / unknown)";
+}
+
 export type AggregatedStats = {
   visits: number;
   formStarts: number;
@@ -152,18 +176,29 @@ export type AggregatedStats = {
   funnel: FunnelStep[];
   daily: DailyRow[];
   failureReasons: FailureReasonCount[];
+  affBreakdown: AffBreakdownRow[];
 };
+
+function parsePrice(price: unknown): number {
+  if (typeof price === "number") return price;
+  if (typeof price === "string") {
+    const n = parseFloat(price);
+    return Number.isNaN(n) ? 0 : n;
+  }
+  return 0;
+}
 
 export function aggregateStats(events: AnalyticsEvent[]): AggregatedStats {
   const counts: Record<string, number> = {};
   let totalRevenue = 0;
   const dailyMap = new Map<string, { visits: number; formStarts: number; submitted: number; accepted: number; revenue: number }>();
   const failReasonMap = new Map<string, number>();
+  const affMap = new Map<string, { visits: number; accepted: number; revenue: number }>();
 
   for (const ev of events) {
     counts[ev.event] = (counts[ev.event] || 0) + 1;
-    if (ev.event === "lead_accepted" && typeof ev.price === "number") {
-      totalRevenue += ev.price;
+    if (ev.event === "lead_accepted") {
+      totalRevenue += parsePrice(ev.price);
     }
     if ((ev.event === "lead_failed" || ev.event === "relay_failed") && ev.reason) {
       const r = String(ev.reason);
@@ -180,7 +215,20 @@ export function aggregateStats(events: AnalyticsEvent[]): AggregatedStats {
     if (ev.event === "lead_submitted") day.submitted++;
     if (ev.event === "lead_accepted") {
       day.accepted++;
-      if (typeof ev.price === "number") day.revenue += ev.price;
+      day.revenue += parsePrice(ev.price);
+    }
+
+    if (ev.event === "page_visit" || ev.event === "lead_accepted") {
+      const aff = resolveAffId(ev);
+      if (!affMap.has(aff)) {
+        affMap.set(aff, { visits: 0, accepted: 0, revenue: 0 });
+      }
+      const row = affMap.get(aff)!;
+      if (ev.event === "page_visit") row.visits++;
+      if (ev.event === "lead_accepted") {
+        row.accepted++;
+        row.revenue += parsePrice(ev.price);
+      }
     }
   }
 
@@ -235,5 +283,14 @@ export function aggregateStats(events: AnalyticsEvent[]): AggregatedStats {
     failureReasons: Array.from(failReasonMap.entries())
       .sort(([, a], [, b]) => b - a)
       .map(([reason, count]) => ({ reason, count })),
+    affBreakdown: Array.from(affMap.entries())
+      .sort(([, a], [, b]) => b.revenue - a.revenue || b.visits - a.visits)
+      .map(([affId, d]) => ({
+        affId,
+        visits: d.visits,
+        accepted: d.accepted,
+        revenue: d.revenue,
+        conversion: d.visits > 0 ? Math.round((d.accepted / d.visits) * 100) : 0,
+      })),
   };
 }

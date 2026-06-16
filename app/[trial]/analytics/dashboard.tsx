@@ -234,6 +234,41 @@ export default function AnalyticsDashboard({ trial, stats, rangeLabel, currentRa
             </table>
           )}
         </div>
+
+        {/* Traffic by aff_id */}
+        <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#f3f4f6]">
+            <h2 className="text-[16px] font-bold text-[#1a1a2e] m-0 tracking-[-0.01em]">Traffic by Source (aff_id)</h2>
+          </div>
+          {stats.affBreakdown.length === 0 ? (
+            <p className="text-[14px] text-[#9ca3af] m-0 p-6">No attribution data yet</p>
+          ) : (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-[#f3f4f6]">
+                  {["aff_id", "Visits", "Accepted", "Revenue", "Conv."].map((h) => (
+                    <th key={h} className="text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-[#9ca3af] py-3 px-4 first:pl-6 last:pr-6">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {stats.affBreakdown.map((row) => (
+                  <tr key={row.affId} className="border-b border-[#f9fafb] hover:bg-[#f9fafb] transition-colors">
+                    <td className="py-3 px-4 pl-6 text-[13px] font-medium text-[#374151] max-w-[280px] truncate" title={row.affId}>
+                      {row.affId}
+                    </td>
+                    <td className="py-3 px-4 text-[13px] text-[#6b7280]">{row.visits}</td>
+                    <td className="py-3 px-4 text-[13px] text-[#6b7280] font-medium">{row.accepted}</td>
+                    <td className="py-3 px-4 text-[13px] text-[#6b7280]">${row.revenue.toFixed(2)}</td>
+                    <td className="py-3 px-4 pr-6 text-[13px] text-[#6b7280]">{row.conversion}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

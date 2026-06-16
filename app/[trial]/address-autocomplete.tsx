@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, memo } from "react";
+import { useRef, useEffect, useLayoutEffect, memo } from "react";
 
 type Props = {
   value: string;
@@ -13,7 +13,9 @@ function AddressAutocompleteInner({ value, onSelect, className, placeholder }: P
   const wrapperRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
   const onSelectRef = useRef(onSelect);
-  onSelectRef.current = onSelect;
+  useLayoutEffect(() => {
+    onSelectRef.current = onSelect;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined" || !wrapperRef.current || initialized.current) return;
@@ -70,7 +72,8 @@ function AddressAutocompleteInner({ value, onSelect, className, placeholder }: P
       }, 300);
       return () => clearInterval(interval);
     }
-  }, []); // run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally run once on mount — placeholder/value applied at init time
 
   return <div ref={wrapperRef} />;
 }

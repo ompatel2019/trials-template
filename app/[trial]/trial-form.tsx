@@ -80,23 +80,40 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   const [siteConsent, setSiteConsent] = useState({ preamble: "", consent: "" });
   const [selectedEthnicities, setSelectedEthnicities] = useState<string[]>([]);
 
-  const sidRef = useRef<string>("");
+  const sidRef = useRef<string>(
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : ""
+  );
+  const affIdRef = useRef<string>("");
+  const clickIdRef = useRef<string>("");
   const formStartedRef = useRef(false);
-  if (!sidRef.current && typeof crypto !== "undefined" && crypto.randomUUID) {
-    sidRef.current = crypto.randomUUID();
-  }
+  const activeStepRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    affIdRef.current = params.get("aff_id") || "";
+    clickIdRef.current = params.get("clickid") || "";
+  }, []);
 
   const track = useCallback((event: string, meta?: Record<string, unknown>) => {
     try {
       fetch("/lander/api/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ event, trial: trialCode, sid: sidRef.current, ...meta }),
+        body: JSON.stringify({
+          event,
+          trial: trialCode,
+          sid: sidRef.current,
+          affId: affIdRef.current || undefined,
+          clickId: clickIdRef.current || undefined,
+          ...meta,
+        }),
       });
     } catch { /* fire-and-forget */ }
   }, [trialCode]);
 
-  useEffect(() => { track("page_visit"); }, [track]);
+  useEffect(() => {
+    track("page_visit");
+  }, [track]);
 
   const totalScreening = questions.length;
   const contactSteps = 4; // details_1, details_2a, details_2b, consent
@@ -169,6 +186,30 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   }
 
   const currentQ = phase === "screening" ? questions[step] : null;
+
+  const autofocusKey = (() => {
+    if (phase === "screening" && currentQ) {
+      if (currentQ.type === "height") return `${currentQ.id}_feet`;
+      if (currentQ.type === "weight" || currentQ.type === "text") return currentQ.id;
+      return null;
+    }
+    if (phase === "details_1") return part1Fields[0] ?? null;
+    if (phase === "details_2a") {
+      const textField = part2aFields.find((f) => f !== "sex");
+      return textField ?? null;
+    }
+    if (phase === "details_2b" && part2bFields.includes("doctorDetails")) return "doctorDetails";
+    return null;
+  })();
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      activeStepRef.current
+        ?.querySelector<HTMLElement>("[data-autofocus]")
+        ?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phase, step]);
 
   function isScreeningReady(): boolean {
     if (!currentQ) return false;
@@ -329,6 +370,10 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       consents,
       doctorDetails: values.doctorDetails || undefined,
       ethnicity: selectedEthnicities,
+      attribution: {
+        affId: affIdRef.current || undefined,
+        clickId: clickIdRef.current || undefined,
+      },
     };
 
     try {
@@ -412,6 +457,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   function renderField(field: ContactField) {
     const meta = FIELD_META[field];
     const filled = !!values[field];
+    const autofocus = field === autofocusKey;
 
     if (field === "address") {
       return (
@@ -477,6 +523,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
             placeholder={meta.placeholder}
             value={values[field] ?? ""}
             onChange={(e) => setValue(field, e.target.value)}
+            {...(autofocus ? { "data-autofocus": true } : {})}
           />
           <p className="text-[11px] text-[var(--ink-3)] m-0 mt-1">Optional — helps with medical records lookup</p>
         </div>
@@ -553,6 +600,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
               setValue(field, formatted);
             }}
             maxLength={10}
+            {...(autofocus ? { "data-autofocus": true } : {})}
           />
         </div>
       );
@@ -567,6 +615,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
         inputMode={meta.inputMode}
         value={values[field] ?? ""}
         onChange={(e) => setValue(field, e.target.value)}
+        {...(autofocus ? { "data-autofocus": true } : {})}
       />
     );
   }
@@ -610,9 +659,19 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       {/* Submitting state */}
       {phase === "submitting" && (
         <div className="pt-[18px] pb-2 text-center">
-          <div className="w-16 h-16 rounded-full bg-[var(--blue-pale)] text-[var(--blue)] inline-flex items-center justify-center mb-[18px] animate-pulse">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2"/>
+          <div className="w-16 h-16 rounded-full bg-[var(--blue-pale)] inline-flex items-center justify-center mb-[18px]">
+            <svg
+              className="animate-spin h-9 w-9 text-[var(--blue)]"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path
+                className="opacity-90"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
           </div>
           <h3 className="text-[20px] font-bold m-0 mb-2 tracking-[-0.01em]">Submitting...</h3>
@@ -654,7 +713,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
       {/* Screening question */}
       {phase === "screening" && currentQ && (
-        <div>
+        <div ref={activeStepRef}>
           <p className={`font-semibold text-[var(--ink)] m-0 leading-[1.35] ${compact ? "text-[14.5px] mb-[18px]" : "text-[16px] mb-3.5"}`}>
             {currentQ.question}
           </p>
@@ -668,6 +727,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
                 value={values[currentQ.id + "_feet"] ?? ""}
                 onChange={(e) => setValue(currentQ.id + "_feet", e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && isScreeningReady()) advanceScreening(); }}
+                {...(autofocusKey === `${currentQ.id}_feet` ? { "data-autofocus": true } : {})}
               />
               <input
                 className={inputCls}
@@ -688,6 +748,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
               value={values[currentQ.id] ?? ""}
               onChange={(e) => setValue(currentQ.id, e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && isScreeningReady()) advanceScreening(); }}
+              {...(autofocusKey === currentQ.id ? { "data-autofocus": true } : {})}
             />
           )}
 
@@ -698,6 +759,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
               value={values[currentQ.id] ?? ""}
               onChange={(e) => setValue(currentQ.id, e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && isScreeningReady()) advanceScreening(); }}
+              {...(autofocusKey === currentQ.id ? { "data-autofocus": true } : {})}
             />
           )}
 
@@ -779,7 +841,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
       {/* Details Part 1 */}
       {phase === "details_1" && (
-        <div>
+        <div ref={activeStepRef}>
           <div className="text-center mb-5">
             <p className={`font-bold text-[var(--ink)] m-0 mb-1.5 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
               Great news — you may qualify.
@@ -801,7 +863,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
       {/* Details Part 2a — DOB, Gender, Address */}
       {phase === "details_2a" && (
-        <div>
+        <div ref={activeStepRef}>
           <div className="text-center mb-5">
             <p className={`font-bold text-[var(--ink)] m-0 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
               Personal details
@@ -819,7 +881,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
       {/* Details Part 2b — Ethnicity, Doctor */}
       {phase === "details_2b" && (
-        <div>
+        <div ref={activeStepRef}>
           <div className="text-center mb-5">
             <p className={`font-bold text-[var(--ink)] m-0 mb-1.5 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
               Background &amp; medical history
