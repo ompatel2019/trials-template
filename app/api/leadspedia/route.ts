@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ELIGIBLE_ZIPS_CKD14 } from "@/lib/data/eligible-zips-ckd14";
+import { trackEvent } from "@/lib/analytics";
 
 const LEADSPEDIA_POST_URL =
   process.env.LEADSPEDIA_POST_URL || "https://helplaw.leadspediatrack.com/post.do";
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
     });
 
     const lpText = await lpResponse.text();
-    let lpJson: { result?: string; price?: number; lead_id?: string };
+    let lpJson: { result?: string; price?: number; lead_id?: string; message?: string; reason?: string };
     try {
       lpJson = JSON.parse(lpText);
     } catch {
@@ -145,7 +146,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    trackEvent("lead_submitted", { trial, zip: paddedZip });
+
     if (lpJson.result === "success") {
+      trackEvent("lead_accepted", { trial, zip: paddedZip, price: lpJson.price ?? 0, lead_id: lpJson.lead_id || "" });
       return NextResponse.json({
         result: "success",
         price: lpJson.price,
@@ -153,10 +157,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const failReason = lpJson.message || lpJson.reason || lpJson.result || "Lead not accepted";
+    console.log("LeadsPedia rejection:", JSON.stringify(lpJson));
+    trackEvent("lead_failed", { trial, zip: paddedZip, reason: failReason });
     return NextResponse.json({
       result: "failed",
       price: 0,
-      message: lpJson.result || "Lead not accepted",
+      reason: failReason,
     });
   } catch (error) {
     console.error("LeadsPedia request failed:", error);

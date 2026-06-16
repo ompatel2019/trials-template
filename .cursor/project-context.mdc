@@ -1,0 +1,452 @@
+# Referral Bridge — Full Project Context
+
+## Overview
+
+**Referral Bridge** is a Next.js 16 clinical trial patient recruitment landing page platform. It generates patient leads for clinical trials, collecting user data through a multi-step form, submitting it to **LeadsPedia** (lead aggregation platform), which then relays qualified leads to **HealthMatch** (trial matching partner). Currently operates a single active trial for **Chronic Kidney Disease (CKD)**.
+
+- **Framework:** Next.js 16.2.6 (App Router, React 19.2.4, TypeScript 5)
+- **Styling:** Tailwind CSS 4 (PostCSS plugin), custom CSS variables, no tailwind.config.ts
+- **Deployment:** PM2 on port 3002 (`pm2 restart referral-bridge`)
+- **Dev server:** `next dev --port 3001`
+- **Base path:** `/lander` (all routes served under `https://goodlabgroup.com/lander/`)
+- **Asset prefix:** `/lander`
+- **Company:** Good Lab (clinical trial matchmaking service)
+
+---
+
+## Directory Structure
+
+```
+referral-bridge/
+├── app/
+│   ├── globals.css                      # Tailwind import, CSS variables, keyframes
+│   ├── layout.tsx                       # Root layout (fonts, Google Maps script)
+│   ├── page.tsx                         # Root "/" — simple placeholder page
+│   └── [trial]/
+│       ├── page.tsx                     # Trial lander page (server component)
+│       ├── trial-form.tsx               # Multi-step intake form (client component)
+│       ├── consent-step.tsx             # 3-checkbox consent UI (client component)
+│       ├── address-autocomplete.tsx     # Google Places address input (client component)
+│       ├── faq.tsx                      # Accordion FAQ (client component)
+│       └── analytics/
+│           ├── page.tsx                 # Analytics data fetcher (server component)
+│           └── dashboard.tsx            # PIN-gated analytics UI (client component)
+├── app/api/
+│   ├── leadspedia/route.ts             # POST — submits lead data to LeadsPedia
+│   ├── healthmatch-relay/route.ts      # POST — receives LeadsPedia callback, relays to HealthMatch
+│   └── track/route.ts                  # POST — receives client-side analytics events
+├── lib/
+│   ├── analytics.ts                    # NDJSON event tracking, reading, aggregation
+│   ├── trials/
+│   │   ├── types.ts                    # TrialConfig, TrialQuestion, ContactField types
+│   │   ├── index.ts                    # Trial registry (getTrialBySlug)
+│   │   └── ckd-001.ts                  # CKD trial configuration
+│   ├── healthmatch/
+│   │   ├── types.ts                    # HealthMatch API types (payload, response, consent)
+│   │   ├── map-payload.ts              # Maps form data → HealthMatch referral payload
+│   │   ├── ethnicity.ts                # US ethnicity → HealthMatch attribute mapping
+│   │   └── graphql.ts                  # HealthMatch GraphQL client (nearest trial site)
+│   └── data/
+│       └── eligible-zips-ckd14.ts      # ~5,500 eligible ZIP codes for CKD trial
+├── data/
+│   └── analytics/                      # NDJSON files (one per day, e.g. 2026-06-16.ndjson)
+├── .env.local                          # Environment variables (credentials)
+├── package.json
+├── next.config.ts
+├── tsconfig.json
+└── postcss.config.mjs
+```
+
+---
+
+## Environment Variables
+
+Defined in `.env.local`. Server-side only (not prefixed with `NEXT_PUBLIC_` except Google Maps):
+
+| Variable | Purpose | Fallback in code |
+|---|---|---|
+| `LEADSPEDIA_POST_URL` | LeadsPedia form POST endpoint | `https://helplaw.leadspediatrack.com/post.do` |
+| `LEADSPEDIA_CAMPAIGN_ID` | Campaign identifier | `6334ddaf1c58d` |
+| `LEADSPEDIA_CAMPAIGN_KEY` | Campaign API key | `MFbmdK3xjv4ZGwnXY2pQ` |
+| `HEALTHMATCH_REFER_URL` | HealthMatch referral endpoint | `https://graphql-api.healthmatch.io/refer-patient` |
+| `HEALTHMATCH_GRAPHQL_URL` | HealthMatch GraphQL API | `https://graphql-api.healthmatch.io/graphql` |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Google Maps Places API key | `""` |
+
+**Note:** Hardcoded fallbacks exist in source for LP credentials. Credentials should NOT be committed to git.
+
+---
+
+## Dependencies
+
+### Production
+- `next` 16.2.6 — Framework
+- `react` / `react-dom` 19.2.4 — UI library
+- `lucide-react` ^1.16.0 — Icon library (Stethoscope, MapPin, DollarSign, ShieldCheck)
+- `react-icons` ^5.6.0 — Social icons (FaFacebookF, FaLinkedinIn)
+- `zod` ^4.4.3 — Schema validation (installed but not actively used yet)
+
+### Dev
+- `tailwindcss` ^4 + `@tailwindcss/postcss` ^4 — Styling
+- `typescript` ^5 — Type checking
+- `eslint` ^9 + `eslint-config-next` 16.2.6 — Linting
+- `@types/node`, `@types/react`, `@types/react-dom`, `@types/google.maps` — Type definitions
+
+---
+
+## Routing & URLs
+
+All routes are under the `/lander` base path:
+
+| Route | Type | Description |
+|---|---|---|
+| `/lander/` | Page | Root placeholder ("ReferralBridge" splash) |
+| `/lander/chronic-kidney-disease` | Dynamic `[trial]` | CKD trial landing page with form |
+| `/lander/chronic-kidney-disease/analytics` | Dynamic `[trial]/analytics` | PIN-gated analytics dashboard |
+| `/lander/api/leadspedia` | API POST | Lead submission to LeadsPedia |
+| `/lander/api/healthmatch-relay` | API POST | LeadsPedia→HealthMatch relay |
+| `/lander/api/track` | API POST | Client-side event tracking |
+
+---
+
+## Active Trial: CKD-001 (Chronic Kidney Disease)
+
+Configured in `lib/trials/ckd-001.ts`:
+
+- **Trial ID:** `ckd-001`
+- **Study Code:** `NB-2614`
+- **Slug:** `chronic-kidney-disease`
+- **Condition:** CKD
+- **Partner:** HealthMatch
+- **LeadsPedia Trial Code:** `ckd14`
+- **HealthMatch Trial ID:** `AZCKDD6800C00005`
+- **HealthMatch Condition ID:** `400`
+- **Age Range:** 18–65
+- **Duration:** 8–24 weeks
+- **ZIP Eligibility:** ~5,500 US ZIP codes across 21+ states (stored in `lib/data/eligible-zips-ckd14.ts`)
+
+### Screening Questions (10 total)
+1. Height (feet/inches input)
+2. Weight (pounds input)
+3. CKD diagnosis (select: Yes currently / Yes in past / No / Not sure) — DQ on "No"
+4. Dialysis (select: No / Yes / Previously) — DQ on "Yes"
+5. Kidney transplant (boolean) — DQ on "Yes"
+6. Diabetes (select: No / Type 2 / Type 1) — DQ on "Type 1"
+7. Insulin use (boolean)
+8. Excluded conditions (multiselect: Hep B/C, sickle cell, liver disease, long QT, bleeding disorder, cancer) — DQ on any
+9. Recent events (multiselect: stroke, heart attack, coronary revascularization, organ transplant) — DQ on any
+10. Clinical trial participation (boolean) — DQ on "Yes"
+11. African ancestry (boolean) — informational, not DQ
+
+### Contact Fields Collected
+- firstName, lastName, email, phone, zipCode (Part 1)
+- dob, sex, address (Part 2a)
+- ethnicity (multiselect), doctorDetails (optional) (Part 2b)
+
+### Consent Requirements
+- HealthMatch Terms of Service & Privacy Policy
+- EMR (medical records) consent authorization
+- Site-specific consent (fetched dynamically via HealthMatch GraphQL per ZIP)
+
+---
+
+## Form Flow (Phases)
+
+The form in `trial-form.tsx` uses a `Phase` state machine:
+
+```
+screening → details_1 → details_2a → details_2b → consent → submitting → success
+                                                                       → consent (on failure, with error msg)
+screening → rejected (if DQ'd by screening answers)
+```
+
+1. **screening** — 10 screening questions, one at a time. Boolean/select auto-advance on click. Height/weight/multiselect require "Continue" button.
+2. **details_1** — First name, last name, email, phone, ZIP code. ZIP validated client-side against `ELIGIBLE_ZIPS_CKD14` set.
+3. **details_2a** — Date of birth (mm/dd/yyyy auto-formatted), gender, address (Google Places autocomplete).
+4. **details_2b** — Ethnicity (multiselect checkboxes), doctor details (optional text).
+5. **consent** — Three checkboxes: HealthMatch T&Cs, EMR authorization, site-specific consent.
+6. **submitting** — Loading spinner while POST to `/api/leadspedia` executes.
+7. **success** — "Thanks — you're all set" confirmation.
+8. **rejected** — "Thanks for your interest" (screening DQ).
+
+### Error Handling in Form
+When LeadsPedia returns `result: "failed"`, the form maps the reason to user-friendly messages:
+- "Duplicate Lead" → "It looks like you've already applied for this study..."
+- "No Available Contracts" → "We're unable to match you with a site..."
+- Other → "We weren't able to process your application right now..."
+
+---
+
+## API Routes
+
+### POST `/api/leadspedia` (`app/api/leadspedia/route.ts`)
+
+Receives form data from the client form, validates it, and submits to LeadsPedia.
+
+**Flow:**
+1. Parse JSON body (trial, personal info, screening, consents)
+2. Validate required fields
+3. Server-side ZIP eligibility check against `ELIGIBLE_ZIPS_CKD14`
+4. Build `screening_json` — compact JSON with short keys (h, w, ckd, dia, ins, etc.) for LeadsPedia's character limit
+5. Build human-readable `comments` summary
+6. POST to LeadsPedia as `application/x-www-form-urlencoded`
+7. Track `lead_submitted`, then `lead_accepted` or `lead_failed` with reason
+
+**LeadsPedia Fields Sent:**
+`lp_response`, `lp_campaign_id`, `lp_campaign_key`, `first_name`, `last_name`, `phone_home`, `zip_code`, `email_address`, `aff_id`, `trial`, `dob`, `gender`, `address`, `comments`, `screening_json`, `doctor_details` (optional)
+
+### POST `/api/healthmatch-relay` (`app/api/healthmatch-relay/route.ts`)
+
+Receives callbacks from LeadsPedia's delivery webhook and relays qualified leads to HealthMatch's referral API.
+
+**Flow:**
+1. Parse LeadsPedia delivery payload (flat key format: `first_name`, `last_name`, etc.)
+2. Parse `screening_json` (handles both compact and verbose formats)
+3. Call HealthMatch GraphQL API to find nearest trial site for the ZIP code
+4. Build full HealthMatch referral payload via `mapToHealthMatchPayload()`
+5. POST to HealthMatch's `/refer-patient` endpoint
+6. Track `relay_success` or `relay_failed`
+
+**Critical Constants:**
+- `TRIAL_ID = "AZCKDD6800C00005"` (HealthMatch trial identifier)
+- `CONDITION_ID = 400` (HealthMatch condition code for CKD)
+
+### POST `/api/track` (`app/api/track/route.ts`)
+
+Fire-and-forget client-side event tracking endpoint.
+
+**Flow:**
+1. Parse JSON body with `event`, `trial`, `sid`, and optional metadata
+2. Validate event against `ALLOWED_EVENTS` set
+3. Capture IP (from `x-forwarded-for`), User-Agent, Referrer
+4. Call `trackEvent()` to append to NDJSON file
+5. Return `204 No Content`
+
+---
+
+## HealthMatch Integration
+
+### GraphQL API (`lib/healthmatch/graphql.ts`)
+- **Endpoint:** `https://graphql-api.healthmatch.io/graphql`
+- **Query:** `GetNearestTrialSite` — given a trial ID and ZIP code, returns the closest trial site ID and its consent text
+- Used both client-side (for consent text fetch in `trial-form.tsx`) and server-side (in relay)
+
+### Referral API (`lib/healthmatch/map-payload.ts`)
+- **Endpoint:** `https://graphql-api.healthmatch.io/refer-patient`
+- **Payload Type:** `HealthMatchReferralPayload` (see `lib/healthmatch/types.ts`)
+
+### Data Normalization
+- **DOB:** Form collects `mm/dd/yyyy`, HealthMatch requires `YYYY-MM-DD`. `normalizeDobForHealthMatch()` handles conversion.
+- **Phone:** Form collects various formats, HealthMatch requires E.164 (`+14045551234`). `normalizePhoneForHealthMatch()` handles conversion.
+- **Sex:** Form uses "Male"/"Female", mapped to "M"/"F"
+- **Attribution:** Hardcoded as `{ medium: "affiliates", source: "goodlab" }`
+
+### HealthMatch Attribute Definition IDs
+
+The `buildAttributeValueInput()` function maps screening answers to HealthMatch's attribute system. Key IDs:
+
+| Attribute | ID | Type |
+|---|---|---|
+| African ancestry | 26748 | radio (`000-kiodu`) |
+| CKD diagnosis | 794 | boolean |
+| Dialysis (current) | 20342 | boolean |
+| Kidney transplant | 396, 15039 | boolean |
+| Dialysis (alternate) | 20254 | boolean |
+| Lupus kidney disease | 21985 | boolean (hardcoded false) |
+| IgA kidney disease | 26683 | boolean (hardcoded false) |
+| Height (cm) | 15264 | float |
+| Weight (kg) | 5 | float |
+| Type 2 diabetes | 702 | boolean |
+| Type 1 diabetes | 1356 | boolean |
+| Insulin use | 23574 | boolean |
+| Insulin duration | 26773 | boolean (hardcoded false) |
+| Hepatitis B | 15040 | boolean |
+| Hepatitis C | 834 | boolean |
+| Sickle cell disease | 25006 | boolean |
+| Liver disease | 21026 | boolean |
+| Long QT | 23739 | boolean |
+| Bleeding disorder | 15061 | boolean |
+| Cancer (past 5y) | 25310 | boolean |
+| Stroke (3mo) | 1370 | boolean |
+| Heart attack (6mo) | 6775 | boolean |
+| Coronary revasc. | 25414 | boolean |
+| Organ transplant | 15039 | boolean |
+| Clinical trial | 23777 | boolean |
+| Hispanic/Latino | 22519 | boolean |
+| Ethnicity 1 | 22520 | radio |
+| Ethnicity 2 | 22521 | radio |
+| Multi-racial | 22500 | boolean |
+
+### Ethnicity Mapping (`lib/healthmatch/ethnicity.ts`)
+
+Maps US ethnicity selections to HealthMatch's attribute system:
+- Hispanic/Latino → boolean attribute 22519
+- Primary ethnicity → radio attribute 22520 (first non-Hispanic selection)
+- Secondary ethnicity → radio attribute 22521 (second non-Hispanic selection)
+- Multi-racial flag → boolean attribute 22500 (true if 2+ non-Hispanic ethnicities)
+
+Each ethnicity has paired option IDs for first/second slots:
+- American Indian: `000-6ls1x` / `000-9c7gt`
+- Asian: `001-xcv8ve` / `001-cnn2pt`
+- Black/African American: `002-uumkxi` / `002-fwz8kf`
+- Native Hawaiian/Pacific Islander: `003-lnrhpu` / `003-rk0r6j`
+- White: `004-1addnv` / `004-3ef4lq`
+- Other: `005-1o2epp` / `005-gbj0dm`
+- Prefer not to answer: `006-6i6gur` / `006-15be6`
+
+---
+
+## Analytics System
+
+### Storage (`lib/analytics.ts`)
+
+- **Format:** NDJSON (Newline Delimited JSON) — one JSON object per line
+- **File location:** `data/analytics/YYYY-MM-DD.ndjson` (one file per day)
+- **Timezone:** All timestamps and file dates use Australia/Sydney (AEST, UTC+10)
+- `sydneyDate()` — returns current date as `YYYY-MM-DD` in AEST
+- `sydneyTimestamp()` — returns ISO-like timestamp in AEST (e.g. `2026-06-16T10:30:00+10:00`)
+
+### Event Types (ALLOWED_EVENTS)
+
+Client-side (tracked via `/api/track`):
+- `page_visit` — page load
+- `form_start` — first interaction with screening form
+- `screening_complete` — passed all screening questions
+- `screening_disqualified` — failed screening
+- `zip_rejected` — ZIP code not in eligible set
+- `details_1_complete` — submitted contact info
+- `details_2a_complete` — submitted personal details
+- `details_2b_complete` — submitted ethnicity/doctor
+- `consent_complete` — accepted all consents
+
+Server-side (tracked in API routes):
+- `lead_submitted` — form data sent to LeadsPedia
+- `lead_accepted` — LeadsPedia accepted (includes `price`, `lead_id`)
+- `lead_failed` — LeadsPedia rejected (includes `reason`)
+- `relay_success` — HealthMatch accepted referral (includes `trialSiteId`)
+- `relay_failed` — HealthMatch rejected referral (includes `reason`)
+
+### Event Schema (`AnalyticsEvent`)
+```typescript
+{
+  ts: string;          // Sydney timezone timestamp
+  event: string;       // Event name from ALLOWED_EVENTS
+  trial: string;       // Trial code (e.g. "ckd14")
+  sid?: string;        // Client session UUID
+  ip?: string;         // Client IP from x-forwarded-for
+  ua?: string;         // User-Agent
+  ref?: string;        // Referrer
+  utm?: Record<string, string>;
+  zip?: string;
+  price?: number;      // For lead_accepted
+  lead_id?: string;    // For lead_accepted
+  reason?: string;     // For lead_failed / relay_failed
+  question?: string;
+  trialSiteId?: string; // For relay_success
+}
+```
+
+### Aggregation (`aggregateStats`)
+
+Processes raw events into `AggregatedStats`:
+- Counts per event type
+- Total revenue (sum of `price` on `lead_accepted` events)
+- Conversion funnel (9 steps from page visit to lead accepted, with counts and percentages)
+- Daily breakdown (visits, form starts, submitted, accepted per day)
+- Failure reasons breakdown (aggregated reasons from `lead_failed` and `relay_failed`)
+- Conversion rate (accepted / visits)
+
+### Analytics Dashboard
+
+**URL:** `/lander/chronic-kidney-disease/analytics`
+
+**Server component** (`analytics/page.tsx`):
+- Reads `range` query param (today, 7d, 30d, or all)
+- Computes date boundaries using `sydneyDate()`
+- Reads and filters events, aggregates stats
+- Passes data to client dashboard component
+
+**Client component** (`analytics/dashboard.tsx`):
+- **PIN Gate:** 4-digit PIN `9021`, auto-unlocks when correct PIN entered (no submit needed)
+- **Date Range Filters:** Today, 7 days, 30 days, All time — uses `useTransition` for loading state
+- **Summary Cards:** Visits, Form Starts, Submitted, Accepted, Conversion %
+- **Conversion Funnel:** Visual bar chart with white text overlaid, HSL-graduated colors
+- **Rejection Breakdown:** Screening DQ count, ZIP rejected count, detailed Lead/Relay failure reasons
+- **Daily Breakdown Table:** Date, Visits, Form Starts, Submitted, Accepted, Conversion %
+
+---
+
+## Styling
+
+### CSS Variables (globals.css `:root`)
+
+| Variable | Value | Usage |
+|---|---|---|
+| `--bg` | `#ffffff` | White backgrounds |
+| `--bg-tint` | `#f4f7fc` | Light blue-gray sections |
+| `--bg-tint-2` | `#eef3fb` | Slightly darker tint |
+| `--ink` | `#0d1730` | Primary text |
+| `--ink-2` | `#3d4a66` | Secondary text |
+| `--ink-3` | `#6b7793` | Tertiary text / labels |
+| `--rule` | `#e3e8f1` | Border lines |
+| `--rule-soft` | `#eef1f7` | Subtle dividers |
+| `--blue` | `#1d4ed8` | Primary brand blue |
+| `--blue-2` | `#2563eb` | Form card background |
+| `--blue-deep` | `#0b2e6f` | Dark blue (nav logo, CTA section) |
+| `--blue-pale` | `#dde7fa` | Light blue highlight |
+| `--orange` | `#ea580c` | CTA buttons |
+| `--orange-2` | `#c2410c` | CTA button hover |
+| `--green` | `#15803d` | Success/live indicator |
+
+### Fonts (loaded via Google Fonts in layout.tsx)
+- **Inter Tight** (400–800) — Primary sans-serif
+- **JetBrains Mono** (400–600) — Monospace for labels/stats
+- **Source Serif 4** (italic 400–500) — Serif for subtitle accent
+
+### Animations
+- `fadeUp` — slide up + fade in (used for sections)
+- `fadeIn` — fade in only (used for hero)
+- `live` — pulsing glow (for live indicators)
+
+### Background Effects
+- `.hero-pattern::before` — subtle vertical lines with mask gradient
+- `.cta-glow::before` — radial gradient overlay on dark CTA section
+
+---
+
+## Trial Lander Page Structure
+
+The `[trial]/page.tsx` server component renders these sections in order:
+
+1. **Nav** — Logo + "Check eligibility" CTA button
+2. **Hero** — 3fr/2fr grid: text column (subtitle, title, description, benefits list, "Read about the study" link) + form column (TrialForm component in blue card)
+3. **Stats** — 2-column centered bar (Age 18–65, Duration 8–24 wks)
+4. **About the Study** — Study headline, multi-paragraph description, eligibility criteria table
+5. **CTA** — Dark blue section with headline, "Check eligibility" button, enrollment counter
+6. **Why Participate** — 4 reasons with icons (Stethoscope, MapPin, DollarSign, ShieldCheck)
+7. **About Us** — Company description, founded/HQ/sites/enrolled stats
+8. **FAQ** — 5 accordion items
+9. **Footer** — Logo, HIPAA badges, links (Terms, Privacy, Contact), copyright, social icons
+
+---
+
+## Adding a New Trial
+
+To add a new trial:
+
+1. Create a new config file in `lib/trials/` (e.g. `new-trial.ts`) following the `TrialConfig` type
+2. Register it in `lib/trials/index.ts` by importing and adding to the `trials` map
+3. Create an eligible ZIP codes file in `lib/data/` if needed
+4. Update ZIP validation in `api/leadspedia/route.ts` to handle the new trial
+5. Update relay constants in `api/healthmatch-relay/route.ts` if routing to HealthMatch
+
+---
+
+## Known Issues & Notes
+
+- `zod` is listed as a dependency but not actively used in any route handlers or lib files
+- Analytics PIN (`9021`) is client-side only — anyone inspecting the JS bundle can bypass it
+- The `company.meta` block in `ckd-001.ts` says "Founded 2018, Boston MA" but the rendered HTML in `page.tsx` hardcodes "Founded 2021, Sydney AU"
+- LeadsPedia credentials have hardcoded fallbacks in source code (should be env-only)
+- ZIP gate is enforced both client-side (`trial-form.tsx`) and server-side (`api/leadspedia/route.ts`) — correct pattern
+- Analytics NDJSON files use append-only writes (`fs.appendFileSync`) for concurrent safety
+- All analytics timestamps use Australia/Sydney timezone (AEST) regardless of server timezone

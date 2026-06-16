@@ -45,7 +45,7 @@ export default async function TrialPage({ params }: Props) {
       </nav>
 
       {/* ── Hero ── */}
-      <section className="hero-pattern pt-[130px] pb-[90px] bg-[var(--bg-tint)] relative overflow-hidden animate-[fadeIn_0.5s_ease-out_both] max-md:pt-[100px] max-md:pb-[60px]">
+      <section className="hero-pattern pt-[130px] pb-[90px] bg-[var(--bg-tint)] relative z-10 overflow-visible animate-[fadeIn_0.5s_ease-out_both] max-md:pt-[100px] max-md:pb-[60px]">
         <div className="max-w-[1240px] mx-auto px-14 max-lg:px-8 max-md:px-5 max-xs:px-4">
           <div className="relative grid grid-cols-[3fr_2fr] gap-20 items-start max-md:grid-cols-1 max-md:gap-8">
             {/* Left: Text */}
@@ -89,7 +89,7 @@ export default async function TrialPage({ params }: Props) {
             </div>
 
             {/* Right: Form */}
-            <div className="self-start flex min-w-0 relative animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s]">
+            <div className="self-start flex min-w-0 relative z-20 animate-[fadeUp_0.6s_ease-out_both] [animation-delay:0.25s]">
               <span id="form" className="absolute -top-20"></span>
               <div className="w-full bg-[var(--blue-2)] rounded-2xl p-[18px] shadow-[0_30px_60px_-28px_rgba(13,46,111,.35)] relative">
                 <TrialForm
@@ -107,7 +107,7 @@ export default async function TrialPage({ params }: Props) {
       </section>
 
       {/* ── Stats ── */}
-      <section className="bg-white animate-[fadeUp_0.7s_ease-out_both]">
+      <section className="bg-white relative z-0 animate-[fadeUp_0.7s_ease-out_both]">
         <div className="grid grid-cols-2 border-y border-[var(--rule)] max-xs:grid-cols-1">
           {config.stats.map((stat, i) => (
             <div

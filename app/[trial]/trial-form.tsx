@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { TrialQuestion, ContactField } from "@/lib/trials/types";
 import { ELIGIBLE_ZIPS_CKD14 } from "@/lib/data/eligible-zips-ckd14";
 import ConsentStep, { type ConsentValues } from "./consent-step";
@@ -79,6 +79,24 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   const [submitError, setSubmitError] = useState("");
   const [siteConsent, setSiteConsent] = useState({ preamble: "", consent: "" });
   const [selectedEthnicities, setSelectedEthnicities] = useState<string[]>([]);
+
+  const sidRef = useRef<string>("");
+  const formStartedRef = useRef(false);
+  if (!sidRef.current && typeof crypto !== "undefined" && crypto.randomUUID) {
+    sidRef.current = crypto.randomUUID();
+  }
+
+  const track = useCallback((event: string, meta?: Record<string, unknown>) => {
+    try {
+      fetch("/lander/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event, trial: trialCode, sid: sidRef.current, ...meta }),
+      });
+    } catch { /* fire-and-forget */ }
+  }, [trialCode]);
+
+  useEffect(() => { track("page_visit"); }, [track]);
 
   const totalScreening = questions.length;
   const contactSteps = 4; // details_1, details_2a, details_2b, consent
@@ -164,10 +182,13 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
   }
 
   function advanceScreening() {
+    if (!formStartedRef.current) { formStartedRef.current = true; track("form_start"); }
     if (step < totalScreening - 1) {
       setStep(step + 1);
     } else {
-      setPhase(evaluateEligibility(values, multiValues) ? "details_1" : "rejected");
+      const eligible = evaluateEligibility(values, multiValues);
+      if (eligible) { track("screening_complete"); } else { track("screening_disqualified"); }
+      setPhase(eligible ? "details_1" : "rejected");
     }
   }
 
@@ -177,13 +198,16 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
   function handleRadioSelect(val: string) {
     if (!currentQ) return;
+    if (!formStartedRef.current) { formStartedRef.current = true; track("form_start"); }
     const newValues = { ...values, [currentQ.id]: val };
     setValues(newValues);
     setTimeout(() => {
       if (step < totalScreening - 1) {
         setStep(step + 1);
       } else {
-        setPhase(evaluateEligibility(newValues, multiValues) ? "details_1" : "rejected");
+        const eligible = evaluateEligibility(newValues, multiValues);
+        if (eligible) { track("screening_complete"); } else { track("screening_disqualified"); }
+        setPhase(eligible ? "details_1" : "rejected");
       }
     }, 300);
   }
@@ -193,9 +217,11 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     const zip = (values.zipCode || "").padStart(5, "0");
     if (!ELIGIBLE_ZIPS_CKD14.has(zip)) {
       setZipError("This trial isn't available in your area yet.");
+      track("zip_rejected", { zip });
       return;
     }
     setZipError("");
+    track("details_1_complete", { zip });
     fetchSiteConsent(zip);
     setPhase("details_2a");
   }
@@ -238,18 +264,21 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
   function submitPart2a() {
     if (arePart2aValid()) {
+      track("details_2a_complete");
       setPhase("details_2b");
     }
   }
 
   function submitPart2b() {
     if (arePart2bValid()) {
+      track("details_2b_complete");
       setPhase("consent");
     }
   }
 
   async function handleConsentsComplete(consents: ConsentValues) {
     if (!consents.healthmatchTerms || !consents.emrConsent || !consents.siteConsent) return;
+    track("consent_complete");
 
     setPhase("submitting");
     setSubmitError("");
@@ -312,7 +341,16 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       if (json.result === "success") {
         setPhase("success");
       } else if (json.result === "failed") {
-        setSubmitError(json.message || "We couldn't submit your referral. Please try again.");
+        const reason = (json.reason || "").toLowerCase();
+        let msg: string;
+        if (reason.includes("duplicate")) {
+          msg = "It looks like you've already applied for this study. A coordinator will be in touch soon.";
+        } else if (reason.includes("no available contract")) {
+          msg = "We're unable to match you with a site at this time. Please try again later.";
+        } else {
+          msg = "We weren't able to process your application right now. Please try again or contact us.";
+        }
+        setSubmitError(msg);
         setPhase("consent");
       } else {
         setSubmitError(json.message || "Something went wrong. Please try again.");
@@ -378,6 +416,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     if (field === "address") {
       return (
         <div key={field}>
+          <label className="block text-[12px] font-semibold text-[var(--ink-2)] uppercase tracking-[0.08em] mb-1.5">{meta.label}</label>
           <AddressAutocomplete
             value={values[field] || ""}
             onSelect={(address) => setValue("address", address)}
@@ -447,6 +486,7 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
     if (meta.type === "select") {
       return (
         <div key={field} className="relative">
+          <label className="block text-[12px] font-semibold text-[var(--ink-2)] uppercase tracking-[0.08em] mb-1.5">{meta.label}</label>
           <select
             className={`${inputCls} appearance-none pr-9 cursor-pointer ${
               filled ? "text-[var(--ink)]" : "text-[var(--ink-3)]"
@@ -478,41 +518,43 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
 
     if (field === "dob") {
       return (
-        <input
-          key={field}
-          className={inputCls}
-          type="text"
-          placeholder={meta.placeholder}
-          inputMode="numeric"
-          value={values[field] ?? ""}
-          onKeyDown={(e) => {
-            if (e.key === "Backspace") {
-              e.preventDefault();
-              const cur = values[field] ?? "";
-              if (cur.length === 0) return;
-              const trimmed = cur.endsWith("/") ? cur.slice(0, -2) : cur.slice(0, -1);
-              setValue(field, trimmed);
-            }
-          }}
-          onChange={(e) => {
-            const prev = values[field] ?? "";
-            const next = e.target.value;
-            if (next.length < prev.length) return;
-            const raw = next.replace(/\D/g, "").slice(0, 8);
-            let formatted = raw;
-            if (raw.length > 4) {
-              formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4)}`;
-            } else if (raw.length === 4) {
-              formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/`;
-            } else if (raw.length > 2) {
-              formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
-            } else if (raw.length === 2) {
-              formatted = `${raw}/`;
-            }
-            setValue(field, formatted);
-          }}
-          maxLength={10}
-        />
+        <div key={field}>
+          <label className="block text-[12px] font-semibold text-[var(--ink-2)] uppercase tracking-[0.08em] mb-1.5">{meta.label}</label>
+          <input
+            className={inputCls}
+            type="text"
+            placeholder={meta.placeholder}
+            inputMode="numeric"
+            value={values[field] ?? ""}
+            onKeyDown={(e) => {
+              if (e.key === "Backspace") {
+                e.preventDefault();
+                const cur = values[field] ?? "";
+                if (cur.length === 0) return;
+                const trimmed = cur.endsWith("/") ? cur.slice(0, -2) : cur.slice(0, -1);
+                setValue(field, trimmed);
+              }
+            }}
+            onChange={(e) => {
+              const prev = values[field] ?? "";
+              const next = e.target.value;
+              if (next.length < prev.length) return;
+              const raw = next.replace(/\D/g, "").slice(0, 8);
+              let formatted = raw;
+              if (raw.length > 4) {
+                formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4)}`;
+              } else if (raw.length === 4) {
+                formatted = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/`;
+              } else if (raw.length > 2) {
+                formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
+              } else if (raw.length === 2) {
+                formatted = `${raw}/`;
+              }
+              setValue(field, formatted);
+            }}
+            maxLength={10}
+          />
+        </div>
       );
     }
 
@@ -761,11 +803,8 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
       {phase === "details_2a" && (
         <div>
           <div className="text-center mb-5">
-            <p className={`font-bold text-[var(--ink)] m-0 mb-1.5 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
+            <p className={`font-bold text-[var(--ink)] m-0 leading-[1.25] tracking-[-0.01em] ${compact ? "text-[17px]" : "text-[19px]"}`}>
               Personal details
-            </p>
-            <p className="text-[13.5px] text-[var(--ink-2)] m-0">
-              When is your date of birth, and where are you located?
             </p>
           </div>
           <div className="flex flex-col gap-2.5">{part2aRows.map(renderRow)}</div>

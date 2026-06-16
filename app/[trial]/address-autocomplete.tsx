@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback, memo } from "react";
+import { useRef, useEffect, memo } from "react";
 
 type Props = {
   value: string;
@@ -15,53 +15,62 @@ function AddressAutocompleteInner({ value, onSelect, className, placeholder }: P
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
 
-  const attachAutocomplete = useCallback(() => {
-    if (!wrapperRef.current || initialized.current) return;
-    if (!window.google?.maps?.places) return;
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = className || "";
-    input.placeholder = placeholder || "Start typing your address...";
-    input.value = value || "";
-
-    wrapperRef.current.appendChild(input);
-
-    const autocomplete = new window.google.maps.places.Autocomplete(input, {
-      fields: ["formatted_address"],
-      types: ["address"],
-      componentRestrictions: { country: "us" },
-    });
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (place.formatted_address) {
-        onSelectRef.current(place.formatted_address);
-      }
-    });
-
-    input.addEventListener("input", () => {
-      onSelectRef.current(input.value);
-    });
-
-    initialized.current = true;
-  }, [className, placeholder, value]);
-
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !wrapperRef.current || initialized.current) return;
 
-    if (window.google?.maps?.places) {
-      attachAutocomplete();
+    function attach() {
+      if (!wrapperRef.current || initialized.current) return;
+      const places = window.google?.maps?.places;
+      if (!places?.PlaceAutocompleteElement) return;
+
+      const el = new places.PlaceAutocompleteElement({
+        includedRegionCodes: ["us"],
+      }) as HTMLElement & EventTarget;
+
+      el.style.setProperty("display", "block");
+      el.style.setProperty("width", "100%");
+      el.style.setProperty("background-color", "white");
+      el.style.setProperty("border", "1px solid var(--rule)");
+      el.style.setProperty("border-radius", "0.5rem");
+      el.style.setProperty("box-shadow", "none");
+      el.style.setProperty("color", "var(--ink)");
+      el.style.setProperty("color-scheme", "light");
+      el.setAttribute("placeholder", placeholder || "Start typing your address...");
+
+      wrapperRef.current!.appendChild(el);
+
+      // Apply initial value as the input attribute
+      if (value) {
+        (el as HTMLInputElement).value = value;
+      }
+
+      el.addEventListener("gmp-placeselect", async (e: Event) => {
+        const place = (e as CustomEvent).detail?.place;
+        if (!place) return;
+        await place.fetchFields({ fields: ["formattedAddress"] });
+        onSelectRef.current(place.formattedAddress ?? "");
+      });
+
+      // Capture free-text input for partial values
+      el.addEventListener("input", (e: Event) => {
+        onSelectRef.current((e.target as HTMLInputElement).value ?? "");
+      });
+
+      initialized.current = true;
+    }
+
+    if (window.google?.maps?.places?.PlaceAutocompleteElement) {
+      attach();
     } else {
       const interval = setInterval(() => {
-        if (window.google?.maps?.places) {
+        if (window.google?.maps?.places?.PlaceAutocompleteElement) {
           clearInterval(interval);
-          attachAutocomplete();
+          attach();
         }
       }, 300);
       return () => clearInterval(interval);
     }
-  }, [attachAutocomplete]);
+  }, []); // run once on mount
 
   return <div ref={wrapperRef} />;
 }

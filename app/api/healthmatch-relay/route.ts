@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getNearestTrialSite } from "@/lib/healthmatch/graphql";
 import { mapToHealthMatchPayload, type ScreeningData, type LeadData } from "@/lib/healthmatch/map-payload";
 import type { HealthMatchResponse } from "@/lib/healthmatch/types";
+import { trackEvent } from "@/lib/analytics";
 
 const HEALTHMATCH_REFER_URL =
   process.env.HEALTHMATCH_REFER_URL || "https://graphql-api.healthmatch.io/refer-patient";
@@ -166,10 +167,12 @@ export async function POST(request: NextRequest) {
 
     if (hmJson.status === "success") {
       console.log(`HealthMatch referral success: ${email_address} -> site ${trialSiteId}`);
+      trackEvent("relay_success", { trial: body.trial || "ckd14", zip: zip_code, trialSiteId });
       return NextResponse.json({ status: "success", trialSiteId });
     }
 
     console.error("HealthMatch referral failed:", hmJson.message);
+    trackEvent("relay_failed", { trial: body.trial || "ckd14", zip: zip_code, reason: hmJson.message || "Referral failed" });
     return NextResponse.json(
       { status: "error", message: hmJson.message || "Referral failed" },
       { status: 422 }
