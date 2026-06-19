@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { TrialQuestion, ContactField } from "@/lib/trials/types";
 import { ELIGIBLE_ZIPS_CKD14 } from "@/lib/data/eligible-zips-ckd14";
+import { writeLeadspediaRev } from "@/lib/leadspedia/rev-write";
 import ConsentStep, { type ConsentValues } from "./consent-step";
 import AddressAutocomplete from "./address-autocomplete";
 
@@ -383,6 +384,15 @@ export default function TrialForm({ trialId, trialCode, questions, contactFields
         body: JSON.stringify(payload),
       });
       const json = await res.json();
+      if (json.result === "success" || json.result === "failed") {
+        const affId = affIdRef.current || "goodlab_direct";
+        writeLeadspediaRev({
+          intOfferId: trialCode,
+          affId,
+          revenue: json.result === "success" ? (json.price ?? 0) : 0,
+          leadId: json.lead_id,
+        }).catch((err) => console.error("leadspedia_rev write failed:", err));
+      }
       if (json.result === "success") {
         setPhase("success");
       } else if (json.result === "failed") {

@@ -171,6 +171,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       result: "failed",
       price: 0,
+      lead_id: lpJson.lead_id,
       reason: failReason,
     });
   } catch (error) {

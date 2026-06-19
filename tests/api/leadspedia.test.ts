@@ -118,16 +118,15 @@ describe("POST /api/leadspedia", () => {
     await POST(makeRequest({ ...validBody, attribution: { affId: "aff123", clickId: "click999" } }));
 
     const acceptedCall = trackEventMock.mock.calls.find((c) => c[0] === "lead_accepted");
-    expect(acceptedCall).toBeDefined();
-    expect(acceptedCall[1].affId).toBe("aff123");
-    expect(acceptedCall[1].clickId).toBe("click999");
+    expect(acceptedCall?.[1]).toMatchObject({ affId: "aff123", clickId: "click999" });
   });
 
   it("returns failed result without firing postback on LeadsPedia rejection", async () => {
-    fetchMock.mockResolvedValueOnce({ text: async () => '{"result":"failed","message":"Duplicate Lead"}' } as any);
+    fetchMock.mockResolvedValueOnce({ text: async () => '{"result":"failed","message":"Duplicate Lead","lead_id":"LP999"}' } as any);
     const res = await POST(makeRequest({ ...validBody, attribution: { affId: "aff", clickId: "cid1" } })) as any;
 
     expect(res._body.result).toBe("failed");
+    expect(res._body.lead_id).toBe("LP999");
     // postback must not fire on failure
     expect(fetchMock.mock.calls.length).toBe(1);
   });

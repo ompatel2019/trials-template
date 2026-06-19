@@ -111,6 +111,12 @@ describe("TrialForm attribution", () => {
           json: async () => ({ result: "success", price: 45, lead_id: "test-lead" }),
         });
       }
+      if (url.includes("leadspedia_rev_write.php")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ result: "ok", id: 1 }),
+        });
+      }
       return Promise.resolve({ ok: true });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -183,6 +189,50 @@ describe("TrialForm attribution", () => {
       expect(body?.attribution).toEqual({
         affId: "8734_5000_test",
         clickId: "click999",
+      });
+    });
+  });
+
+  it("writes leadspedia_rev from the browser after LeadsPedia success", async () => {
+    render(
+      <TrialForm
+        trialId="ckd-001"
+        trialCode="ckd14"
+        questions={minimalQuestions}
+        contactFields={contactFields}
+        healthmatchTrialId="AZCKDD6800C00005"
+      />
+    );
+
+    fireEvent.click(screen.getByText("Yes, currently"));
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    fireEvent.change(screen.getByPlaceholderText("First Name"), { target: { value: "Jane" } });
+    fireEvent.change(screen.getByPlaceholderText("Last Name"), { target: { value: "Doe" } });
+    fireEvent.change(screen.getByPlaceholderText("Email"), { target: { value: "jane@example.com" } });
+    fireEvent.change(screen.getByPlaceholderText("Phone (must be 10 digits)"), { target: { value: "4045551234" } });
+    fireEvent.change(screen.getByPlaceholderText("Zip Code"), { target: { value: "30301" } });
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.change(screen.getByPlaceholderText("mm/dd/yyyy"), { target: { value: "01/15/1990" } });
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "Female" } });
+    fireEvent.change(screen.getByLabelText("Address"), { target: { value: "123 Main St, Atlanta, GA" } });
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    fireEvent.click(screen.getByText("White"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /complete consent/i }));
+
+    await waitFor(() => {
+      const body = findFetchBody("leadspedia_rev_write.php");
+      expect(body).toEqual({
+        ext_buyer: "goolablander_leadspedia",
+        int_offer_id: "ckd14",
+        aff_id: "8734_5000_test",
+        revenue: 45,
+        lead_id: "test-lead",
       });
     });
   });

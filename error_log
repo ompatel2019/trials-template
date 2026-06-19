@@ -1,0 +1,6 @@
+[16-Jun-2026 22:21:03 UTC] PHP Deprecated:  Directive 'allow_url_include' is deprecated in Unknown on line 0
+[16-Jun-2026 22:21:13 UTC] PHP Deprecated:  Directive 'allow_url_include' is deprecated in Unknown on line 0
+[16-Jun-2026 22:21:13 UTC] PHP Warning:  mysqli_fetch_assoc() expects parameter 1 to be mysqli_result, bool given in Command line code on line 18
+[16-Jun-2026 22:21:23 UTC] PHP Deprecated:  Directive 'allow_url_include' is deprecated in Unknown on line 0
+[16-Jun-2026 22:21:34 UTC] PHP Deprecated:  Directive 'allow_url_include' is deprecated in Unknown on line 0
+[16-Jun-2026 22:21:34 UTC] PHP Warning:  mysqli_fetch_assoc() expects parameter 1 to be mysqli_result, bool given in Command line code on line 7
